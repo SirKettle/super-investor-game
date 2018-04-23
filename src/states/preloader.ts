@@ -1,13 +1,16 @@
+const coin = require('assets/images/coin.png');
+const dude = require('assets/spritesheets/office-dude.png');
+
 export const assets = {
   images: {
-    // bg: 'assets/images/blood_bg.jpg',
+    coin: coin
   },
   spritesheets: {
-    //   gamepad: {
-    //     src: 'assets/spritesheets/gamepad.png',
-    //     width: 50,
-    //     height: 50
-    //   }
+    dude: {
+      src: dude,
+      width: 32,
+      height: 32
+    }
   },
   audio: {
     // TODO: Add audio
