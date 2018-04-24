@@ -53,7 +53,7 @@ export default class Player {
   private cursors: any;
   private inputKeys: any;
   private sprite: Phaser.Sprite;
-  private velocity: number;
+  private acceleration: number;
 
   private isAirbourne: boolean = true;
 
@@ -73,7 +73,7 @@ export default class Player {
   public getRiskLevel(): RISK_LEVEL {
     return this.riskLevel;
   }
-  public getBody(): Phaser.Sprite {
+  public getSprite(): Phaser.Sprite {
     return this.sprite;
   }
 
@@ -89,7 +89,7 @@ export default class Player {
     this.ifLeftInCashAmount = this.cash;
     this.riskLevel = RISK_LEVEL.MEDIUM;
 
-    this.velocity = 5;
+    this.acceleration = 10000;
 
     // input events
     // scene.input.keyboard.on(KEYBOARD_EVENTS.UP, this.moveUp, this);
@@ -138,6 +138,8 @@ export default class Player {
         this.keyboardControls.down.isDown
     );
 
+    this.sprite.body.acceleration.x = 0;
+    this.sprite.body.velocity.x = 0;
     if (this.keyboardControls.left.isDown) {
       this.moveLeft();
     }
@@ -161,7 +163,7 @@ export default class Player {
   // Private methods
 
   private jump(): void {
-    this.sprite.body.velocity.y = -400;
+    this.sprite.body.velocity.y = -500;
   }
 
   private moveDown(): void {
@@ -169,16 +171,21 @@ export default class Player {
   }
 
   private moveLeft(): void {
-    this.updatePosition(-this.velocity, 0);
+    this.sprite.body.acceleration.x = -this.acceleration;
   }
 
   private moveRight(): void {
-    this.updatePosition(this.velocity, 0);
+    this.sprite.body.acceleration.x = this.acceleration;
   }
 
   private updatePosition(x: number, y: number): void {
     this.sprite.x += x;
     this.sprite.y += y;
+  }
+
+  private updateAcceleration(x: number, y: number): void {
+    this.sprite.body.acceleration.x += x;
+    this.sprite.body.acceleration.y += y;
   }
 
   // Public methods

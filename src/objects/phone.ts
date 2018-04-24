@@ -6,7 +6,7 @@ const textStyleDateTime: Phaser.PhaserTextStyle = {
 const textStyleMessage: Phaser.PhaserTextStyle = {
   font: 'Monospace',
   fontSize: 10,
-  fill: '#000'
+  fill: '#fff'
 };
 
 const toMoneyFormat = (amount: number): string => {
@@ -37,15 +37,23 @@ export default class Phone {
   private group: Phaser.Group;
   private message: Phaser.Text;
   private dateTime: Phaser.Text;
+  private sprite: Phaser.Sprite;
 
   constructor(game: Phaser.Game) {
     this.game = game;
+    this.sprite = this.game.add.sprite(this.game.width - 160, 0, 'phone');
+    this.game.physics.arcade.enable(this.sprite);
+    this.sprite.body.immovable = true;
     this.group = this.game.add.group();
     this.dateTime = this.game.add.text(500, 10, '', textStyleDateTime);
     this.message = this.game.add.text(500, 70, '', textStyleMessage);
     this.group.add(this.message);
     this.group.add(this.dateTime);
     this.group.fixedToCamera = true;
+  }
+
+  public getSprite(): Phaser.Sprite {
+    return this.sprite;
   }
 
   public update(

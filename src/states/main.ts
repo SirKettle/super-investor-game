@@ -102,6 +102,23 @@ export default class Main extends Phaser.State {
       this.currentWeek,
       this.player.getRiskLevel()
     );
+
+    this.checkCollisions();
+  }
+
+  private checkCollisions(): void {
+    this.game.physics.arcade.collide(
+      this.player.getSprite(),
+      this.phone.getSprite(),
+      this.onPlayerBoundsCollision.bind(this)
+    );
+  }
+
+  private onPlayerBoundsCollision(
+    playerSprite: Phaser.Sprite,
+    otherSprite: Phaser.Sprite
+  ): void {
+    console.log('collision', playerSprite, otherSprite);
   }
 
   private onNewWeek(): void {}

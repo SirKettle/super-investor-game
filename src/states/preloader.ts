@@ -1,13 +1,11 @@
-const coin = require('assets/images/coin.png');
-const dude = require('assets/spritesheets/office-dude.png');
-
 export const assets = {
   images: {
-    coin: coin
+    coin: require('assets/images/coin.png'),
+    phone: require('assets/images/phone_x4_160_280.png')
   },
   spritesheets: {
     dude: {
-      src: dude,
+      src: require('assets/spritesheets/office-dude.png'),
       width: 32,
       height: 32
     }

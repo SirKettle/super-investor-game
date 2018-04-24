@@ -21,8 +21,8 @@ class App extends Phaser.Game {
 
 function startApp(): void {
   const gameConfig: Phaser.IGameConfig = {
-    width: 650,
-    height: 375,
+    width: 480,
+    height: 280,
     renderer: Phaser.CANVAS,
     parent: '',
     resolution: 1
