@@ -1,4 +1,5 @@
-import { KeyboardControls } from '../states/main';
+import { KeyboardControls, MissionConfig } from '../states/main';
+import { IGameConfig } from 'phaser-ce';
 
 enum RISK_LEVEL {
   HIGH = 'High',
@@ -43,6 +44,7 @@ function getMinMaxPercentage(riskLevel: RISK_LEVEL): MinMax {
 
 export default class Player {
   // private members
+  private missionConfig: MissionConfig;
   private game: Phaser.Game;
   private keyboardControls: KeyboardControls;
   private cash: number;
@@ -79,8 +81,13 @@ export default class Player {
 
   // Initialise
 
-  constructor(game: Phaser.Game, keyboardControls: KeyboardControls) {
+  constructor(
+    game: Phaser.Game,
+    keyboardControls: KeyboardControls,
+    missionConfig: MissionConfig
+  ) {
     this.game = game;
+    this.missionConfig = missionConfig;
     this.keyboardControls = keyboardControls;
     // set variables
     this.cash = 10;
@@ -116,8 +123,8 @@ export default class Player {
     this.sprite.animations.add('walk');
 
     this.game.physics.arcade.enable(this.sprite);
-    this.sprite.body.gravity.set(0, 1100);
-    this.sprite.body.bounce.set(0, 0.25);
+    this.sprite.body.gravity.set(0, this.missionConfig.gravity);
+    this.sprite.body.bounce.set(0.25);
     this.sprite.body.collideWorldBounds = true;
     // sprite2.body.bounce.y = 0.2;
     // sprite2.body.gravity.y = 200;

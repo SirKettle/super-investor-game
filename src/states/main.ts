@@ -1,5 +1,7 @@
 import Player from '../objects/player';
+import Coins from '../objects/coins';
 import Phone from '../objects/phone';
+import { callPerSecondProbably } from '../utils/functions';
 import { Keyboard } from 'phaser-ce';
 
 const MINUTE: number = 60 * 1000;
@@ -11,16 +13,23 @@ export type KeyboardControls = {
   [key: string]: Phaser.Key;
 };
 
+export type MissionConfig = {
+  gravity: number;
+};
+
 export default class Main extends Phaser.State {
   // ---------
   // Properties
   // ---------
-
+  private missionConfig: MissionConfig;
   private player: Player;
   private phone: Phone;
+  private coins: Coins;
   private timer: Phaser.Timer;
   private timerEvent: Phaser.TimerEvent;
   private keyboardControls: KeyboardControls;
+
+  private delta: number;
 
   private currentWeek: number = 0;
   private previousWeek: number = 0;
@@ -33,6 +42,10 @@ export default class Main extends Phaser.State {
   // ---------
 
   public create(): void {
+    this.missionConfig = {
+      gravity: 1100
+    };
+
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.game.world.setBounds(0, 0, this.world.width, this.world.height);
 
@@ -45,8 +58,13 @@ export default class Main extends Phaser.State {
     // this.dudeSprite.animations.play('move', 4, true);
     // this.dudeSprite.physicsEnabled = true;
 
-    this.player = new Player(this.game, this.keyboardControls);
+    this.player = new Player(
+      this.game,
+      this.keyboardControls,
+      this.missionConfig
+    );
     this.phone = new Phone(this.game);
+    this.coins = new Coins(this.game, { max: 2 }, this.missionConfig);
 
     this.keyboardControls.invest.onDown.add(() => {
       this.player.investCash();
@@ -80,6 +98,7 @@ export default class Main extends Phaser.State {
   // ---------
 
   public update(): void {
+    this.delta = this.game.time.physicsElapsed;
     this.currentWeek = Math.floor(this.timer.ms / 1000);
 
     if (this.currentWeek !== this.previousWeek) {
@@ -104,6 +123,14 @@ export default class Main extends Phaser.State {
     );
 
     this.checkCollisions();
+
+    callPerSecondProbably(
+      () => {
+        this.coins.spawn(Phaser.Math.between(10, 300), 0);
+      },
+      this.delta,
+      2 / 1
+    );
   }
 
   private checkCollisions(): void {
@@ -117,9 +144,7 @@ export default class Main extends Phaser.State {
   private onPlayerBoundsCollision(
     playerSprite: Phaser.Sprite,
     otherSprite: Phaser.Sprite
-  ): void {
-    console.log('collision', playerSprite, otherSprite);
-  }
+  ): void {}
 
   private onNewWeek(): void {}
 
