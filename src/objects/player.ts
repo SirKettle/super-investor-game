@@ -1,11 +1,6 @@
 import { KeyboardControls, MissionConfig } from '../states/main';
 import { IGameConfig } from 'phaser-ce';
-
-enum RISK_LEVEL {
-  HIGH = 'High',
-  MEDIUM = 'Medium',
-  LOW = 'Low'
-}
+import Money, { RISK_LEVEL } from './money';
 
 enum KEYBOARD_EVENTS {
   INVEST = 'keydown_I',
@@ -16,68 +11,27 @@ enum KEYBOARD_EVENTS {
   RIGHT = 'keydown_RIGHT'
 }
 
-type MinMax = {
-  min: number;
-  max: number;
-};
-
-function getMinMaxPercentage(riskLevel: RISK_LEVEL): MinMax {
-  if (riskLevel === RISK_LEVEL.HIGH) {
-    return {
-      min: -15,
-      max: 25
-    };
-  }
-
-  if (riskLevel === RISK_LEVEL.MEDIUM) {
-    return {
-      min: -10,
-      max: 15
-    };
-  }
-
-  return {
-    min: -5,
-    max: 10
-  };
-}
-
 export default class Player {
   // private members
   private missionConfig: MissionConfig;
   private game: Phaser.Game;
   private keyboardControls: KeyboardControls;
-  private cash: number;
-  private invested: number;
-  private dividends: number;
-  private ifLeftInCashAmount: number;
-  private riskLevel: RISK_LEVEL;
   private cursors: any;
   private inputKeys: any;
   private sprite: Phaser.Sprite;
-  private acceleration: number;
 
   private isAirbourne: boolean = true;
 
+  private money: Money;
+
   // getters
-  public getCash(): number {
-    return this.cash;
-  }
-  public getInvested(): number {
-    return this.invested;
-  }
-  public getWealth(): number {
-    return this.cash + this.invested;
-  }
-  public getIfLeftInCashAmount(): number {
-    return this.ifLeftInCashAmount;
-  }
-  public getRiskLevel(): RISK_LEVEL {
-    return this.riskLevel;
-  }
-  public getSprite(): Phaser.Sprite {
-    return this.sprite;
-  }
+  public getSprite = (): Phaser.Sprite => this.sprite;
+  public getCash = (): number => this.money.getCash();
+  public getInvested = (): number => this.money.getInvested();
+  public getWealth = (): number => this.money.getWealth();
+  public getIfLeftInCashAmount = (): number =>
+    this.money.getIfLeftInCashAmount();
+  public getRiskLevel = (): RISK_LEVEL => this.money.getRiskLevel();
 
   // Initialise
 
@@ -89,27 +43,8 @@ export default class Player {
     this.game = game;
     this.missionConfig = missionConfig;
     this.keyboardControls = keyboardControls;
-    // set variables
-    this.cash = 10;
-    this.dividends = 0;
-    this.invested = 0;
-    this.ifLeftInCashAmount = this.cash;
-    this.riskLevel = RISK_LEVEL.MEDIUM;
 
-    this.acceleration = 10000;
-
-    // input events
-    // scene.input.keyboard.on(KEYBOARD_EVENTS.UP, this.moveUp, this);
-    // scene.input.keyboard.on(KEYBOARD_EVENTS.DOWN, this.moveDown, this);
-    // scene.input.keyboard.on(KEYBOARD_EVENTS.LEFT, this.moveLeft, this);
-    // scene.input.keyboard.on(KEYBOARD_EVENTS.RIGHT, this.moveRight, this);
-
-    // scene.input.keyboard.on(KEYBOARD_EVENTS.INVEST, this.investCash, this);
-    // scene.input.keyboard.on(
-    //   KEYBOARD_EVENTS.TOGGLE_RISK,
-    //   this.toggleRiskLevel,
-    //   this
-    // );
+    this.money = new Money(this.missionConfig.initialCash);
 
     this.renderPlayerSprite();
   }
@@ -120,16 +55,12 @@ export default class Player {
       this.game.height / 2,
       'dude'
     );
-    this.sprite.animations.add('walk');
 
     this.game.physics.arcade.enable(this.sprite);
     this.sprite.body.gravity.set(0, this.missionConfig.gravity);
     this.sprite.body.bounce.set(0.25);
     this.sprite.body.collideWorldBounds = true;
-    // sprite2.body.bounce.y = 0.2;
-    // sprite2.body.gravity.y = 200;
-
-    // this.sprite.animations.play('walk', 4, true);
+    this.sprite.animations.add('shuffle');
   }
 
   // Update methods
@@ -163,7 +94,7 @@ export default class Player {
     }
 
     if (isMoving) {
-      this.sprite.animations.play('walk', 20, false);
+      this.sprite.animations.play('shuffle', 20, false);
     }
   }
 
@@ -178,62 +109,36 @@ export default class Player {
   }
 
   private moveLeft(): void {
-    this.sprite.body.acceleration.x = -this.acceleration;
+    this.sprite.body.acceleration.x = -this.missionConfig.acceleration;
   }
 
   private moveRight(): void {
-    this.sprite.body.acceleration.x = this.acceleration;
+    this.sprite.body.acceleration.x = this.missionConfig.acceleration;
   }
 
-  private updatePosition(x: number, y: number): void {
-    this.sprite.x += x;
-    this.sprite.y += y;
-  }
-
-  private updateAcceleration(x: number, y: number): void {
-    this.sprite.body.acceleration.x += x;
-    this.sprite.body.acceleration.y += y;
+  public onCollisionCoins(
+    playerSprite: Phaser.Sprite,
+    coinSprite: Phaser.Sprite
+  ): void {
+    coinSprite.destroy();
+    this.addCoin();
   }
 
   // Public methods
 
   public updateInvestments(): void {
-    if (this.invested <= 0) {
-      return;
-    }
-
-    const percentageRange = getMinMaxPercentage(this.riskLevel);
-    const growthPercentage = Phaser.Math.between(
-      percentageRange.min,
-      percentageRange.max
-    );
-
-    const growth = this.invested * growthPercentage / 100;
-
-    this.invested += growth;
+    this.money.updateInvestments();
   }
 
   public investCash(): void {
-    this.invested += this.cash;
-    this.cash = 0;
+    this.money.investCash();
   }
 
   public toggleRiskLevel(): void {
-    switch (this.riskLevel) {
-      case RISK_LEVEL.LOW:
-        this.riskLevel = RISK_LEVEL.MEDIUM;
-        break;
-      case RISK_LEVEL.MEDIUM:
-        this.riskLevel = RISK_LEVEL.HIGH;
-        break;
-      case RISK_LEVEL.HIGH:
-        this.riskLevel = RISK_LEVEL.LOW;
-        break;
-    }
+    this.money.toggleRiskLevel();
   }
 
   public addCoin(): void {
-    this.cash++;
-    this.ifLeftInCashAmount++;
+    this.money.addCoin();
   }
 }

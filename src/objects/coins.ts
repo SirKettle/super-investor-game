@@ -10,6 +10,10 @@ export default class Coins {
   private maxInGame: number;
   private group: Phaser.Group;
 
+  public getSpriteGroup(): Phaser.Group {
+    return this.group;
+  }
+
   constructor(
     game: Phaser.Game,
     config: CoinsConfig,
@@ -21,7 +25,7 @@ export default class Coins {
     this.maxInGame = config.max;
   }
 
-  public spawn(x, y) {
+  public spawn(x, y): void {
     if (this.group.length >= this.maxInGame) {
       return;
     }
@@ -29,7 +33,7 @@ export default class Coins {
     this.group.add(this.createCoinSprite(x, y));
   }
 
-  private createCoinSprite(x, y) {
+  private createCoinSprite(x, y): Phaser.Sprite {
     const sprite = this.game.add.sprite(x, y, 'coin');
     this.game.physics.arcade.enable(sprite);
     sprite.anchor.setTo(0.5, 0.5);

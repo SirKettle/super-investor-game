@@ -15,6 +15,9 @@ export type KeyboardControls = {
 
 export type MissionConfig = {
   gravity: number;
+  acceleration: number;
+  initialCash: number;
+  coinValue: number;
 };
 
 export default class Main extends Phaser.State {
@@ -33,9 +36,6 @@ export default class Main extends Phaser.State {
 
   private currentWeek: number = 0;
   private previousWeek: number = 0;
-  // private localFontText: Phaser.Text = null;
-  // private coinImage: Phaser.Image;
-  // private dudeSprite: Phaser.Sprite;
 
   // ---------
   // INITIALIZING
@@ -43,7 +43,10 @@ export default class Main extends Phaser.State {
 
   public create(): void {
     this.missionConfig = {
-      gravity: 1100
+      gravity: 1100,
+      acceleration: 10000,
+      initialCash: 10,
+      coinValue: 1
     };
 
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -51,12 +54,6 @@ export default class Main extends Phaser.State {
 
     this.initTimer();
     this.initInputControls();
-
-    // this.coinImage = this.game.add.image(32, 32, 'coin');
-    // this.dudeSprite = this.game.add.sprite(64, 32, 'dude');
-    // this.dudeSprite.animations.add('move');
-    // this.dudeSprite.animations.play('move', 4, true);
-    // this.dudeSprite.physicsEnabled = true;
 
     this.player = new Player(
       this.game,
@@ -69,10 +66,9 @@ export default class Main extends Phaser.State {
     this.keyboardControls.invest.onDown.add(() => {
       this.player.investCash();
     }, this);
-    this.keyboardControls.riskLevel.onDown.add(
-      this.player.toggleRiskLevel,
-      this
-    );
+    this.keyboardControls.riskLevel.onDown.add(() => {
+      this.player.toggleRiskLevel();
+    }, this);
   }
 
   private initTimer(): void {
@@ -137,14 +133,17 @@ export default class Main extends Phaser.State {
     this.game.physics.arcade.collide(
       this.player.getSprite(),
       this.phone.getSprite(),
-      this.onPlayerBoundsCollision.bind(this)
+      this.onCollision.bind(this)
+    );
+
+    this.game.physics.arcade.collide(
+      this.player.getSprite(),
+      this.coins.getSpriteGroup(),
+      this.player.onCollisionCoins.bind(this.player)
     );
   }
 
-  private onPlayerBoundsCollision(
-    playerSprite: Phaser.Sprite,
-    otherSprite: Phaser.Sprite
-  ): void {}
+  private onCollision(sprite1: Phaser.Sprite, sprite2: Phaser.Sprite): void {}
 
   private onNewWeek(): void {}
 
