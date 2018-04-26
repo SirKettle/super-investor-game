@@ -6,6 +6,10 @@
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.3.0.tgz#3a129cda7c4e5df2409702626892cb4b96546dd5"
 
+"@types/ramda@^0.25.24":
+  version "0.25.24"
+  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.25.24.tgz#2f64ce2100271163247f93fa7b4b052db40ce155"
+
 "@types/webfontloader@1.6.29":
   version "1.6.29"
   resolved "https://registry.yarnpkg.com/@types/webfontloader/-/webfontloader-1.6.29.tgz#c6b5f6eb8ca31d0aae6b02b6c1300349dd93ea8e"

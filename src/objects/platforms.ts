@@ -1,4 +1,6 @@
+// import * as R from 'ramda';
 import { MissionConfig } from '../states/main';
+import { platform } from 'os';
 
 export default class Platforms {
   private missionConfig: MissionConfig;
@@ -21,6 +23,33 @@ export default class Platforms {
     this.group.add(this.createPlatformsprite(x, y, width, height));
   }
 
+  public update(): void {
+    const platformWidth = 75;
+    // remove platforms off screen
+    this.group.children.forEach((platformSprite: Phaser.Sprite) => {
+      if (platformSprite.y > this.game.height) {
+        platformSprite.destroy();
+      }
+    });
+
+    const getMin = (acc: number, cur: number) => Math.min(acc, cur);
+    const yPositions = this.group.children.map(
+      (sprite: Phaser.Sprite) => sprite.y
+    );
+    const minY = yPositions.reduce(getMin);
+
+    if (minY > 30) {
+      this.group.add(
+        this.createPlatformsprite(
+          Phaser.Math.between(0, this.missionConfig.arenaWidth - platformWidth),
+          -this.missionConfig.platformDepth,
+          platformWidth,
+          10
+        )
+      );
+    }
+  }
+
   private createPlatformsprite(
     x: number,
     y: number,
@@ -35,6 +64,11 @@ export default class Platforms {
 
     this.game.physics.arcade.enable(sprite);
     sprite.body.immovable = true;
+    sprite.body.checkCollision.down = false;
+    sprite.body.checkCollision.left = false;
+    sprite.body.checkCollision.right = false;
+    sprite.body.velocity.y = 40;
+    sprite.body.velocity.x = Phaser.Math.between(-10, 10);
     return sprite;
   }
 }

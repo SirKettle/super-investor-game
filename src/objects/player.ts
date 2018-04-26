@@ -50,16 +50,12 @@ export default class Player {
   }
 
   private renderPlayerSprite(): void {
-    this.sprite = this.game.add.sprite(
-      this.game.width / 2,
-      this.game.height / 2,
-      'dude'
-    );
+    this.sprite = this.game.add.sprite(50, 0, 'dude');
 
     this.game.physics.arcade.enable(this.sprite);
     this.sprite.body.gravity.set(0, this.missionConfig.gravity);
-    this.sprite.body.bounce.set(0.25);
-    this.sprite.body.collideWorldBounds = true;
+    // this.sprite.body.bounce.set(0.25);
+    this.sprite.body.collideWorldBounds = false;
     this.sprite.animations.add('shuffle');
   }
 
@@ -85,10 +81,6 @@ export default class Player {
       this.moveRight();
     }
 
-    if (this.keyboardControls.up.isDown && this.isGrounded()) {
-      this.jump();
-    }
-
     if (this.keyboardControls.down.isDown) {
       this.moveDown();
     }
@@ -96,17 +88,16 @@ export default class Player {
     if (isMoving) {
       this.sprite.animations.play('shuffle', 20, false);
     }
+
+    if (this.sprite.centerY > this.missionConfig.arenaHeight) {
+      this.gameOver();
+    }
   }
 
   // Private methods
 
-  private isGrounded(): boolean {
-    // TODO -
-    return true;
-  }
-
   private jump(): void {
-    this.sprite.body.velocity.y = -500;
+    this.sprite.body.velocity.y = -400;
   }
 
   private moveDown(): void {
@@ -121,12 +112,29 @@ export default class Player {
     this.sprite.body.acceleration.x = this.missionConfig.acceleration;
   }
 
-  public onCollisionCoins(
+  public onCollisionCoin(
     playerSprite: Phaser.Sprite,
-    coinSprite: Phaser.Sprite
+    sprite: Phaser.Sprite
   ): void {
-    coinSprite.destroy();
+    sprite.destroy();
     this.addCoin();
+  }
+
+  public onCollisionBank(
+    playerSprite: Phaser.Sprite,
+    sprite: Phaser.Sprite
+  ): void {
+    sprite.destroy();
+    this.investCash();
+  }
+
+  public onCollisionPlatform(
+    playerSprite: Phaser.Sprite,
+    sprite: Phaser.Sprite
+  ): void {
+    if (this.keyboardControls.up.isDown && this.sprite.body.touching.down) {
+      this.jump();
+    }
   }
 
   // Public methods
@@ -145,5 +153,10 @@ export default class Player {
 
   public addCoin(): void {
     this.money.addCoin();
+  }
+
+  public gameOver(): void {
+    console.log('GAME OVER', this.money.getScore());
+    this.game.state.start('title');
   }
 }

@@ -1,5 +1,6 @@
 import Player from '../objects/player';
 import Coins from '../objects/coins';
+import Banks from '../objects/banks';
 import Platforms from '../objects/platforms';
 import Phone from '../objects/phone';
 import { callPerSecondProbably } from '../utils/functions';
@@ -14,12 +15,81 @@ export type KeyboardControls = {
   [key: string]: Phaser.Key;
 };
 
+export type PlatformData = {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+};
+
 export type MissionConfig = {
   gravity: number;
   acceleration: number;
   initialCash: number;
   coinValue: number;
+  arenaWidth: number;
+  arenaHeight: number;
+  platformDepth: number;
+  platforms: PlatformData[];
 };
+
+const getMissionConfig = (
+  arenaWidth: number,
+  arenaHeight: number,
+  platformDepth: number
+) => ({
+  arenaWidth,
+  arenaHeight,
+  platformDepth,
+  gravity: 1100,
+  acceleration: 10000,
+  initialCash: 10,
+  coinValue: 1,
+  platforms: [
+    {
+      width: 100,
+      height: platformDepth,
+      x: 100,
+      y: 0
+    },
+    {
+      width: 100,
+      height: platformDepth,
+      x: 100,
+      y: 50
+    },
+    {
+      width: 100,
+      height: platformDepth,
+      x: 100,
+      y: 100
+    },
+    {
+      width: 100,
+      height: platformDepth,
+      x: 100,
+      y: 150
+    },
+    {
+      width: 100,
+      height: platformDepth,
+      x: 0,
+      y: 210
+    },
+    {
+      width: 100,
+      height: platformDepth,
+      x: arenaWidth - 100,
+      y: 210
+    },
+    {
+      width: arenaWidth,
+      height: platformDepth,
+      x: 0,
+      y: arenaHeight - platformDepth
+    }
+  ]
+});
 
 export default class Main extends Phaser.State {
   // ---------
@@ -29,6 +99,7 @@ export default class Main extends Phaser.State {
   private player: Player;
   private phone: Phone;
   private coins: Coins;
+  private banks: Banks;
   private platforms: Platforms;
   private timer: Phaser.Timer;
   private timerEvent: Phaser.TimerEvent;
@@ -44,18 +115,20 @@ export default class Main extends Phaser.State {
   // ---------
 
   public create(): void {
-    this.missionConfig = {
-      gravity: 1100,
-      acceleration: 10000,
-      initialCash: 10,
-      coinValue: 1
-    };
-
+    this.missionConfig = getMissionConfig(
+      this.game.width - 160,
+      this.game.height,
+      10
+    );
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.game.world.setBounds(0, 0, this.world.width, this.world.height);
 
     this.initTimer();
     this.initInputControls();
+    this.platforms = new Platforms(this.game, this.missionConfig);
+    this.missionConfig.platforms.forEach((datum: PlatformData) => {
+      this.platforms.spawn(datum.x, datum.y, datum.width, datum.height);
+    });
 
     this.player = new Player(
       this.game,
@@ -63,8 +136,8 @@ export default class Main extends Phaser.State {
       this.missionConfig
     );
     this.phone = new Phone(this.game);
-    this.coins = new Coins(this.game, { max: 2 }, this.missionConfig);
-    this.platforms = new Platforms(this.game, this.missionConfig);
+    this.coins = new Coins(this.game, { max: 2, size: 32 }, this.missionConfig);
+    this.banks = new Banks(this.game, { max: 1, size: 32 }, this.missionConfig);
 
     this.keyboardControls.invest.onDown.add(() => {
       this.player.investCash();
@@ -72,8 +145,6 @@ export default class Main extends Phaser.State {
     this.keyboardControls.riskLevel.onDown.add(() => {
       this.player.toggleRiskLevel();
     }, this);
-
-    this.platforms.spawn(0, 200, 100, 10);
   }
 
   private initTimer(): void {
@@ -125,39 +196,50 @@ export default class Main extends Phaser.State {
 
     this.checkCollisions();
 
-    callPerSecondProbably(
-      () => {
-        this.coins.spawn(Phaser.Math.between(10, 300), 0);
-      },
-      this.delta,
-      2 / 1
-    );
+    this.platforms.update();
+    this.coins.update(this.delta);
+    this.banks.update(this.delta);
+
+    // callPerSecondProbably(
+    //   () => {
+    //     this.coins.spawn(Phaser.Math.between(10, 300), 0);
+    //   },
+    //   this.delta,
+    //   2 / 1
+    // );
   }
 
   private checkCollisions(): void {
     this.game.physics.arcade.collide(
       this.player.getSprite(),
-      this.phone.getSprite(),
-      this.onCollision.bind(this)
-    );
-    this.game.physics.arcade.collide(
-      this.player.getSprite(),
-      this.platforms.getSpriteGroup(),
-      this.onCollision.bind(this)
+      this.phone.getSprite()
     );
     this.game.physics.arcade.collide(
       this.coins.getSpriteGroup(),
-      this.platforms.getSpriteGroup(),
-      this.onCollision.bind(this)
+      this.platforms.getSpriteGroup()
     );
     this.game.physics.arcade.collide(
+      this.banks.getSpriteGroup(),
+      this.platforms.getSpriteGroup()
+    );
+
+    // Player collisions
+    this.game.physics.arcade.collide(
+      this.player.getSprite(),
+      this.platforms.getSpriteGroup(),
+      this.player.onCollisionPlatform.bind(this.player)
+    );
+    this.game.physics.arcade.overlap(
       this.player.getSprite(),
       this.coins.getSpriteGroup(),
-      this.player.onCollisionCoins.bind(this.player)
+      this.player.onCollisionCoin.bind(this.player)
+    );
+    this.game.physics.arcade.overlap(
+      this.player.getSprite(),
+      this.banks.getSpriteGroup(),
+      this.player.onCollisionBank.bind(this.player)
     );
   }
-
-  private onCollision(sprite1: Phaser.Sprite, sprite2: Phaser.Sprite): void {}
 
   private onNewWeek(): void {}
 

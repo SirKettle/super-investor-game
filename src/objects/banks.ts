@@ -1,12 +1,12 @@
 import { MissionConfig } from '../states/main';
 import { callPerSecondProbably } from '../utils/functions';
 
-type CoinsConfig = {
+type BanksConfig = {
   max: number;
   size: number;
 };
 
-export default class Coins {
+export default class Banks {
   private missionConfig: MissionConfig;
   private game: Phaser.Game;
   private maxInGame: number;
@@ -19,7 +19,7 @@ export default class Coins {
 
   constructor(
     game: Phaser.Game,
-    config: CoinsConfig,
+    config: BanksConfig,
     missionConfig: MissionConfig
   ) {
     this.missionConfig = missionConfig;
@@ -34,7 +34,7 @@ export default class Coins {
       return;
     }
 
-    this.group.add(this.createCoinSprite(x, y));
+    this.group.add(this.createBankSprite(x, y));
   }
 
   update(delta: number): void {
@@ -45,22 +45,10 @@ export default class Coins {
     });
 
     if (this.group.children.length < 1) {
-      this.group.add(
-        this.createCoinSprite(
-          Phaser.Math.between(
-            this.size,
-            this.missionConfig.arenaWidth - this.size
-          ),
-          -this.size
-        )
-      );
-    }
-
-    if (this.group.children.length < 1) {
       callPerSecondProbably(
         () => {
           this.group.add(
-            this.createCoinSprite(
+            this.createBankSprite(
               Phaser.Math.between(
                 this.size,
                 this.missionConfig.arenaWidth - this.size
@@ -75,8 +63,8 @@ export default class Coins {
     }
   }
 
-  private createCoinSprite(x, y): Phaser.Sprite {
-    const sprite = this.game.add.sprite(x, y, 'coin');
+  private createBankSprite(x, y): Phaser.Sprite {
+    const sprite = this.game.add.sprite(x, y, 'bank');
     this.game.physics.arcade.enable(sprite);
     sprite.anchor.setTo(0.5, 0.5);
     sprite.scale.setTo(1, 1);

@@ -1,6 +1,7 @@
 export const assets = {
   images: {
     coin: require('assets/images/coin.png'),
+    bank: require('assets/images/bank.png'),
     phone: require('assets/images/phone_x4_160_280.png')
   },
   spritesheets: {

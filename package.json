@@ -17,6 +17,7 @@
   "author": "Will Thirkettle <https://github.com/SirKettle>",
   "dependencies": {
     "@types/node": "9.3.0",
+    "@types/ramda": "^0.25.24",
     "@types/webfontloader": "1.6.29",
     "clean-webpack-plugin": "0.1.17",
     "commander": "2.13.0",

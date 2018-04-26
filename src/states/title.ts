@@ -1,7 +1,7 @@
+import { CENTER } from 'phaser-ce';
+
 export default class Title extends Phaser.State {
   private localFontText: Phaser.Text = null;
-  private coinImage: Phaser.Image;
-  private dudeSprite: Phaser.Sprite;
 
   public create(): void {
     this.localFontText = this.game.add.text(
@@ -9,20 +9,42 @@ export default class Title extends Phaser.State {
       this.game.world.centerY,
       `Super investor!
 
-      READY PLAYER ONE
-      `,
+
+
+READY PLAYER ONE`,
       {
-        font: '30px Monospace'
+        font: '30px courier',
+        align: 'center',
+        fill: '#ffddee'
       }
     );
     this.localFontText.anchor.setTo(0.5);
 
     this.game.camera.flash(0x000000, 1000);
 
-    this.coinImage = this.game.add.image(32, 32, 'coin');
-    this.dudeSprite = this.game.add.sprite(64, 32, 'dude');
-    this.dudeSprite.animations.add('move');
-    this.dudeSprite.animations.play('move', 4, true);
+    const coinImage = this.game.add.image(
+      this.game.world.centerX + 100,
+      this.game.world.centerY,
+      'coin'
+    );
+    coinImage.anchor.set(0.5);
+
+    const coinImage2 = this.game.add.image(
+      this.game.world.centerX - 100,
+      this.game.world.centerY,
+      'coin'
+    );
+    coinImage2.anchor.set(0.5);
+
+    const dudeSprite = this.game.add.sprite(
+      this.game.world.centerX,
+      this.game.world.centerY,
+      'dude'
+    );
+    dudeSprite.anchor.set(0.5);
+    dudeSprite.scale.set(2);
+    dudeSprite.animations.add('move');
+    dudeSprite.animations.play('move', 4, true);
 
     this.input.onDown.addOnce(this.startGame, this);
   }

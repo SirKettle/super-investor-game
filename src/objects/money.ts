@@ -68,6 +68,13 @@ export default class Money {
 
   // Public methods
 
+  public getScore(): any {
+    return {
+      ifLeftInCashAmount: this.getIfLeftInCashAmount(),
+      wealth: this.getWealth()
+    };
+  }
+
   public updateInvestments(): void {
     if (this.invested <= 0) {
       return;
