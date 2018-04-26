@@ -85,7 +85,7 @@ export default class Player {
       this.moveRight();
     }
 
-    if (this.keyboardControls.up.isDown && !this.isAirbourne) {
+    if (this.keyboardControls.up.isDown && this.isGrounded()) {
       this.jump();
     }
 
@@ -99,6 +99,11 @@ export default class Player {
   }
 
   // Private methods
+
+  private isGrounded(): boolean {
+    // TODO -
+    return true;
+  }
 
   private jump(): void {
     this.sprite.body.velocity.y = -500;

@@ -1,5 +1,6 @@
 import Player from '../objects/player';
 import Coins from '../objects/coins';
+import Platforms from '../objects/platforms';
 import Phone from '../objects/phone';
 import { callPerSecondProbably } from '../utils/functions';
 import { Keyboard } from 'phaser-ce';
@@ -28,6 +29,7 @@ export default class Main extends Phaser.State {
   private player: Player;
   private phone: Phone;
   private coins: Coins;
+  private platforms: Platforms;
   private timer: Phaser.Timer;
   private timerEvent: Phaser.TimerEvent;
   private keyboardControls: KeyboardControls;
@@ -62,6 +64,7 @@ export default class Main extends Phaser.State {
     );
     this.phone = new Phone(this.game);
     this.coins = new Coins(this.game, { max: 2 }, this.missionConfig);
+    this.platforms = new Platforms(this.game, this.missionConfig);
 
     this.keyboardControls.invest.onDown.add(() => {
       this.player.investCash();
@@ -69,6 +72,8 @@ export default class Main extends Phaser.State {
     this.keyboardControls.riskLevel.onDown.add(() => {
       this.player.toggleRiskLevel();
     }, this);
+
+    this.platforms.spawn(0, 200, 100, 10);
   }
 
   private initTimer(): void {
@@ -135,7 +140,16 @@ export default class Main extends Phaser.State {
       this.phone.getSprite(),
       this.onCollision.bind(this)
     );
-
+    this.game.physics.arcade.collide(
+      this.player.getSprite(),
+      this.platforms.getSpriteGroup(),
+      this.onCollision.bind(this)
+    );
+    this.game.physics.arcade.collide(
+      this.coins.getSpriteGroup(),
+      this.platforms.getSpriteGroup(),
+      this.onCollision.bind(this)
+    );
     this.game.physics.arcade.collide(
       this.player.getSprite(),
       this.coins.getSpriteGroup(),
