@@ -17,7 +17,7 @@ const textStyleMessage: Phaser.PhaserTextStyle = {
 };
 
 const toMoneyFormat = (amount: number): string => {
-  return `£${amount.toFixed(2)}`;
+  return `£${(amount * 1000).toFixed(2)}`;
 };
 
 const renderScoreText = (

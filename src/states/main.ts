@@ -136,8 +136,8 @@ export default class Main extends Phaser.State {
       this.missionConfig
     );
     this.phone = new Phone(this.game);
-    this.coins = new Coins(this.game, { max: 2, size: 32 }, this.missionConfig);
-    this.banks = new Banks(this.game, { max: 1, size: 32 }, this.missionConfig);
+    this.coins = new Coins(this.game, this.missionConfig, { max: 2, size: 32 });
+    this.banks = new Banks(this.game, this.missionConfig, { max: 1, size: 32 });
 
     this.keyboardControls.invest.onDown.add(() => {
       this.player.investCash();
