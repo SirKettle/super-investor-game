@@ -40,6 +40,13 @@ export default class Player {
   public getRiskLevel = (): RISK_LEVEL => this.money.getRiskLevel();
   public getAccountsData = (): AccountsData => this.money.getAccountsData();
 
+  // requests
+  public updateInvestments = (): void => this.money.updateInvestments();
+  public investCash = (): void => this.money.investCash();
+  public payTax = (): void => this.money.payTax();
+  public toggleRiskLevel = (): void => this.money.toggleRiskLevel();
+  public addCoin = (): void => this.money.addCoin();
+
   // Initialise
 
   constructor(
@@ -144,6 +151,15 @@ export default class Player {
     this.investCash();
   }
 
+  public onCollisionTaxMan(
+    playerSprite: Phaser.Sprite,
+    sprite: Phaser.Sprite
+  ): void {
+    sprite.destroy();
+    this.soundSystem[Sounds.bank].play();
+    this.payTax();
+  }
+
   public onCollisionPlatform(
     playerSprite: Phaser.Sprite,
     sprite: Phaser.Sprite
@@ -151,24 +167,6 @@ export default class Player {
     if (this.keyboardControls.up.isDown && this.sprite.body.touching.down) {
       this.jump();
     }
-  }
-
-  // Public methods
-
-  public updateInvestments(): void {
-    this.money.updateInvestments();
-  }
-
-  public investCash(): void {
-    this.money.investCash();
-  }
-
-  public toggleRiskLevel(): void {
-    this.money.toggleRiskLevel();
-  }
-
-  public addCoin(): void {
-    this.money.addCoin();
   }
 
   public gameOver(): void {

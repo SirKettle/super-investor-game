@@ -1,6 +1,7 @@
 import { constants as TIME, monthNames } from '../utils/time';
 import { pad } from '../utils/number';
 import { Images } from '../states/preloader';
+import { AccountsData } from '../objects/money';
 
 const textStyle: Phaser.PhaserTextStyle = {
   font: 'monospace',
@@ -25,24 +26,18 @@ const toMoneyFormat = (amount: number): string => {
   return `£${(amount * 1000).toFixed(2)}`;
 };
 
-const renderScoreText = (
-  cash: number,
-  invested: number,
-  wealth: number,
-  ifLeftInCashAmount: number,
-  currentWeek: number,
-  riskLevel: string
-) => `
-Cash: ${toMoneyFormat(cash)}
+const renderScoreText = (accountsData: AccountsData, currentWeek: number) => `
+Cash: ${toMoneyFormat(accountsData.cash)}
 ---
-Risk level: ${riskLevel}
-Invested: ${toMoneyFormat(invested)}
+Invested: ${toMoneyFormat(accountsData.invested)}
+Tax paid: ${toMoneyFormat(accountsData.taxPaid)}
+Risk level: ${accountsData.riskLevel}
 ---
-Total wealth: ${toMoneyFormat(wealth)}
+Total wealth: ${toMoneyFormat(accountsData.wealth)}
 ---
 Week: ${currentWeek}
 Investing has definitely really saved you ${toMoneyFormat(
-  wealth - ifLeftInCashAmount
+  accountsData.wealth - accountsData.ifLeftInCashAmount
 )}
 `;
 
@@ -55,6 +50,7 @@ export default class Phone {
   private sprite: Phaser.Sprite;
   private indicators: { [key: string]: Phaser.Sprite };
   private initialDateTime: Date;
+  private accountsData: AccountsData;
 
   constructor(game: Phaser.Game) {
     this.game = game;
@@ -134,12 +130,18 @@ export default class Phone {
   private resetGrowthIndicator(): void {
     this.indicators.increase.alpha = 0;
     this.indicators.decrease.alpha = 0;
-    this.investmentsText.setText('');
+
+    if (this.accountsData) {
+      this.investmentsText.setText(toMoneyFormat(this.accountsData.wealth));
+    }
   }
 
   public updateInvestments(lastGrowth: number): void {
     this.resetGrowthIndicator();
 
+    if (lastGrowth === 0) {
+      return;
+    }
     if (lastGrowth > 0) {
       this.indicators.increase.alpha = 1;
     }
@@ -154,23 +156,10 @@ export default class Phone {
     }, 1500);
   }
 
-  public update(
-    cash: number,
-    invested: number,
-    wealth: number,
-    ifLeftInCashAmount: number,
-    lastGrowth: number,
-    currentWeek: number,
-    riskLevel: string
-  ): void {
-    const scoreText = renderScoreText(
-      cash,
-      invested,
-      wealth,
-      ifLeftInCashAmount,
-      currentWeek,
-      riskLevel
-    );
+  public update(accountsData: AccountsData, currentWeek: number): void {
+    this.accountsData = accountsData;
+
+    const scoreText = renderScoreText(accountsData, currentWeek);
     this.message.setText(scoreText);
 
     const currentDate = new Date(

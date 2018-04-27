@@ -1,10 +1,12 @@
 import Player from '../objects/player';
 import Coins from '../objects/coins';
 import Banks from '../objects/banks';
+import TaxCollectors from '../objects/taxCollectors';
 import Platforms from '../objects/platforms';
 import Phone from '../objects/phone';
 import { callPerSecondProbably } from '../utils/functions';
 import { SoundSystem } from '../types/custom';
+import { AccountsData } from '../objects/money';
 
 import { Images, Sprites, Sounds } from './preloader';
 
@@ -102,6 +104,7 @@ export default class Main extends Phaser.State {
   private phone: Phone;
   private coins: Coins;
   private banks: Banks;
+  private taxCollectors: TaxCollectors;
   private platforms: Platforms;
   private timer: Phaser.Timer;
   private timerEvent: Phaser.TimerEvent;
@@ -112,6 +115,10 @@ export default class Main extends Phaser.State {
 
   private currentWeek: number = 0;
   private previousWeek: number = 0;
+
+  public shutdown(): void {
+    this.soundSystem[Sounds.musicMoney].stop();
+  }
 
   // ---------
   // INITIALIZING
@@ -127,10 +134,13 @@ export default class Main extends Phaser.State {
     this.game.world.setBounds(0, 0, this.world.width, this.world.height);
 
     this.soundSystem = {
-      [Sounds.coin]: this.game.add.audio(Sounds.coin, 0.75),
+      [Sounds.coin]: this.game.add.audio(Sounds.coin, 0.5),
       [Sounds.jump]: this.game.add.audio(Sounds.jump, 0.1),
-      [Sounds.crash]: this.game.add.audio(Sounds.crash),
-      [Sounds.bank]: this.game.add.audio(Sounds.bank)
+      [Sounds.crash]: this.game.add.audio(Sounds.crash, 0.7),
+      [Sounds.bank]: this.game.add.audio(Sounds.bank, 0.7),
+      [Sounds.error]: this.game.add.audio(Sounds.error, 0.7),
+      [Sounds.powerUp]: this.game.add.audio(Sounds.powerUp, 0.7),
+      [Sounds.musicMoney]: this.game.add.audio(Sounds.musicMoney, 0.75, true)
     };
 
     this.initTimer();
@@ -149,6 +159,10 @@ export default class Main extends Phaser.State {
     this.phone = new Phone(this.game);
     this.coins = new Coins(this.game, this.missionConfig, { max: 2, size: 32 });
     this.banks = new Banks(this.game, this.missionConfig, { max: 1, size: 32 });
+    this.taxCollectors = new TaxCollectors(this.game, this.missionConfig, {
+      max: 1,
+      size: 32
+    });
 
     this.keyboardControls.invest.onDown.add(() => {
       this.player.investCash();
@@ -156,6 +170,8 @@ export default class Main extends Phaser.State {
     this.keyboardControls.riskLevel.onDown.add(() => {
       this.player.toggleRiskLevel();
     }, this);
+
+    this.soundSystem[Sounds.musicMoney].play();
   }
 
   private initTimer(): void {
@@ -184,6 +200,8 @@ export default class Main extends Phaser.State {
     this.delta = this.game.time.physicsElapsed;
     this.currentWeek = Math.floor(this.timer.ms / 1000);
 
+    this.phone.update(this.player.getAccountsData(), this.currentWeek);
+
     if (this.currentWeek !== this.previousWeek) {
       this.onNewWeek();
 
@@ -196,29 +214,12 @@ export default class Main extends Phaser.State {
 
     this.player.update();
 
-    this.phone.update(
-      this.player.getCash(),
-      this.player.getInvested(),
-      this.player.getWealth(),
-      this.player.getIfLeftInCashAmount(),
-      this.player.getLastGrowth(),
-      this.currentWeek,
-      this.player.getRiskLevel()
-    );
-
     this.checkCollisions();
 
     this.platforms.update();
     this.coins.update(this.delta);
     this.banks.update(this.delta);
-
-    // callPerSecondProbably(
-    //   () => {
-    //     this.coins.spawn(Phaser.Math.between(10, 300), 0);
-    //   },
-    //   this.delta,
-    //   2 / 1
-    // );
+    this.taxCollectors.update(this.delta);
   }
 
   private checkCollisions(): void {
@@ -250,6 +251,11 @@ export default class Main extends Phaser.State {
       this.player.getSprite(),
       this.banks.getSpriteGroup(),
       this.player.onCollisionBank.bind(this.player)
+    );
+    this.game.physics.arcade.overlap(
+      this.player.getSprite(),
+      this.taxCollectors.getSpriteGroup(),
+      this.player.onCollisionTaxMan.bind(this.player)
     );
   }
 

@@ -4,12 +4,14 @@ export enum Sounds {
   powerUp = 'sound.powerUp',
   error = 'sound.error',
   crash = 'sound.crash',
-  bank = 'sound.bank'
+  bank = 'sound.bank',
+  musicMoney = 'music.money'
 }
 
 export enum Images {
   coin = 'image.coin',
   bank = 'image.bank',
+  taxman = 'image.taxman',
   phone = 'image.phone'
 }
 
@@ -21,6 +23,7 @@ export const assets = {
   images: {
     [Images.coin]: require('assets/images/coin.png'),
     [Images.bank]: require('assets/images/bank.png'),
+    [Images.taxman]: require('assets/images/taxman.png'),
     [Images.phone]: require('assets/images/phone_x4_160_280.png')
   },
   spritesheets: {
@@ -37,7 +40,8 @@ export const assets = {
     [Sounds.powerUp]: require('assets/audio/sfx_sounds_powerup3.wav'),
     [Sounds.error]: require('assets/audio/sfx_sounds_error3.wav'),
     [Sounds.crash]: require('assets/audio/sfx_sounds_negative1.wav'),
-    [Sounds.bank]: require('assets/audio/sfx_sounds_fanfare1.wav')
+    [Sounds.bank]: require('assets/audio/sfx_sounds_fanfare1.wav'),
+    [Sounds.musicMoney]: require('assets/audio/MoneyMoneyMoney.mp3')
   }
 };
 
