@@ -1,6 +1,8 @@
 import { KeyboardControls, MissionConfig } from '../states/main';
 import { IGameConfig } from 'phaser-ce';
 import Money, { RISK_LEVEL, AccountsData } from './money';
+import { SoundSystem } from '../types/custom';
+import { Images, Sprites, Sounds } from '../states/preloader';
 
 enum KEYBOARD_EVENTS {
   INVEST = 'keydown_I',
@@ -15,6 +17,7 @@ export default class Player {
   // private members
   private missionConfig: MissionConfig;
   private game: Phaser.Game;
+  private soundSystem: SoundSystem;
   private keyboardControls: KeyboardControls;
   private cursors: any;
   private inputKeys: any;
@@ -42,26 +45,25 @@ export default class Player {
   constructor(
     game: Phaser.Game,
     keyboardControls: KeyboardControls,
-    missionConfig: MissionConfig
+    missionConfig: MissionConfig,
+    soundSystem: SoundSystem
   ) {
     this.game = game;
+    this.soundSystem = soundSystem;
     this.missionConfig = missionConfig;
     this.keyboardControls = keyboardControls;
 
-    this.money = new Money(this.game, this.missionConfig.initialCash);
+    this.money = new Money(
+      this.game,
+      this.soundSystem,
+      this.missionConfig.initialCash
+    );
 
     this.renderPlayerSprite();
-
-    this.audio = {
-      coin: this.game.add.audio('coin', 0.75),
-      jump: this.game.add.audio('jump', 0.1),
-      crash: this.game.add.audio('crash'),
-      bank: this.game.add.audio('bank')
-    };
   }
 
   private renderPlayerSprite(): void {
-    this.sprite = this.game.add.sprite(50, 0, 'dude');
+    this.sprite = this.game.add.sprite(50, 0, Sprites.dude);
 
     this.game.physics.arcade.enable(this.sprite);
     this.sprite.body.gravity.set(0, this.missionConfig.gravity);
@@ -108,7 +110,7 @@ export default class Player {
   // Private methods
 
   private jump(): void {
-    this.audio.jump.play();
+    this.soundSystem[Sounds.jump].play();
     this.sprite.body.velocity.y = -400;
   }
 
@@ -129,7 +131,7 @@ export default class Player {
     sprite: Phaser.Sprite
   ): void {
     sprite.destroy();
-    this.audio.coin.play();
+    this.soundSystem[Sounds.coin].play();
     this.addCoin();
   }
 
@@ -138,7 +140,7 @@ export default class Player {
     sprite: Phaser.Sprite
   ): void {
     sprite.destroy();
-    this.audio.bank.play();
+    this.soundSystem[Sounds.bank].play();
     this.investCash();
   }
 
@@ -171,7 +173,7 @@ export default class Player {
 
   public gameOver(): void {
     console.log('GAME OVER', this.money.getScore());
-    this.audio.crash.play();
+    this.soundSystem[Sounds.crash].play();
     this.game.state.start('title');
   }
 }

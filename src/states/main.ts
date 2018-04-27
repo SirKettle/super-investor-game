@@ -4,7 +4,9 @@ import Banks from '../objects/banks';
 import Platforms from '../objects/platforms';
 import Phone from '../objects/phone';
 import { callPerSecondProbably } from '../utils/functions';
-import { Keyboard } from 'phaser-ce';
+import { SoundSystem } from '../types/custom';
+
+import { Images, Sprites, Sounds } from './preloader';
 
 const MINUTE: number = 60 * 1000;
 const objectives = {
@@ -104,6 +106,7 @@ export default class Main extends Phaser.State {
   private timer: Phaser.Timer;
   private timerEvent: Phaser.TimerEvent;
   private keyboardControls: KeyboardControls;
+  private soundSystem: SoundSystem;
 
   private delta: number;
 
@@ -123,6 +126,13 @@ export default class Main extends Phaser.State {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.game.world.setBounds(0, 0, this.world.width, this.world.height);
 
+    this.soundSystem = {
+      [Sounds.coin]: this.game.add.audio(Sounds.coin, 0.75),
+      [Sounds.jump]: this.game.add.audio(Sounds.jump, 0.1),
+      [Sounds.crash]: this.game.add.audio(Sounds.crash),
+      [Sounds.bank]: this.game.add.audio(Sounds.bank)
+    };
+
     this.initTimer();
     this.initInputControls();
     this.platforms = new Platforms(this.game, this.missionConfig);
@@ -133,7 +143,8 @@ export default class Main extends Phaser.State {
     this.player = new Player(
       this.game,
       this.keyboardControls,
-      this.missionConfig
+      this.missionConfig,
+      this.soundSystem
     );
     this.phone = new Phone(this.game);
     this.coins = new Coins(this.game, this.missionConfig, { max: 2, size: 32 });

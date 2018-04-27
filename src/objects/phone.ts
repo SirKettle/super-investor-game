@@ -1,5 +1,6 @@
 import { constants as TIME, monthNames } from '../utils/time';
 import { pad } from '../utils/number';
+import { Images } from '../states/preloader';
 
 const textStyle: Phaser.PhaserTextStyle = {
   font: 'monospace',
@@ -57,7 +58,7 @@ export default class Phone {
 
   constructor(game: Phaser.Game) {
     this.game = game;
-    this.sprite = this.game.add.sprite(this.game.width - 160, 0, 'phone');
+    this.sprite = this.game.add.sprite(this.game.width - 160, 0, Images.phone);
     this.game.physics.arcade.enable(this.sprite);
     this.sprite.body.immovable = true;
 

@@ -1,3 +1,6 @@
+import { Images, Sprites, Sounds } from '../states/preloader';
+import { SoundSystem } from '../types/custom';
+
 export enum RISK_LEVEL {
   HIGH = 'High',
   MEDIUM = 'Medium',
@@ -48,7 +51,7 @@ export default class Money {
   private lastGrowth: number;
   private ifLeftInCashAmount: number;
   private riskLevel: RISK_LEVEL;
-  private audio: { [key: string]: Phaser.Sound };
+  private soundSystem: SoundSystem;
 
   // getters
   public getCash = (): number => this.cash;
@@ -70,7 +73,11 @@ export default class Money {
 
   // Initialise
 
-  constructor(game: Phaser.Game, initialCash: number) {
+  constructor(
+    game: Phaser.Game,
+    soundSystem: SoundSystem,
+    initialCash: number
+  ) {
     this.game = game;
     // set variables
     this.cash = initialCash;
@@ -79,12 +86,6 @@ export default class Money {
     this.lastGrowth = 0;
     this.ifLeftInCashAmount = this.cash;
     this.riskLevel = RISK_LEVEL.MEDIUM;
-
-    this.audio = {
-      powerUp: this.game.add.audio('powerUp'),
-      error: this.game.add.audio('error'),
-      crash: this.game.add.audio('crash')
-    };
   }
 
   // Public methods
@@ -109,8 +110,8 @@ export default class Money {
 
     this.lastGrowth = this.invested * growthPercentage / 100;
 
-    const audioKey = this.lastGrowth < 0 ? 'error' : 'powerUp';
-    this.audio[audioKey].play();
+    const audioKey = this.lastGrowth < 0 ? Sounds.error : Sounds.powerUp;
+    this.soundSystem[audioKey].play();
 
     this.invested += this.lastGrowth;
   }

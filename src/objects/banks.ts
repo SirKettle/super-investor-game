@@ -1,6 +1,7 @@
 import { MissionConfig } from '../states/main';
 
 import Group, { GroupConfig } from './group';
+import { Images } from '../states/preloader';
 
 export default class Banks extends Group {
   constructor(
@@ -13,7 +14,7 @@ export default class Banks extends Group {
       {
         ...config,
         spawnRate: 1 / 20,
-        imageKey: 'bank'
+        imageKey: Images.bank
       },
       missionConfig
     );

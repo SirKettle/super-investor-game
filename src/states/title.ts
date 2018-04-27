@@ -1,4 +1,5 @@
 import { CENTER } from 'phaser-ce';
+import { Images, Sprites } from './preloader';
 
 export default class Title extends Phaser.State {
   private localFontText: Phaser.Text = null;
@@ -27,21 +28,21 @@ READY PLAYER ONE
     const coinImage = this.game.add.image(
       this.game.world.centerX + 100,
       this.game.world.centerY,
-      'coin'
+      Images.coin
     );
     coinImage.anchor.set(0.5);
 
     const coinImage2 = this.game.add.image(
       this.game.world.centerX - 100,
       this.game.world.centerY,
-      'coin'
+      Images.coin
     );
     coinImage2.anchor.set(0.5);
 
     const dudeSprite = this.game.add.sprite(
       this.game.world.centerX,
       this.game.world.centerY,
-      'dude'
+      Sprites.dude
     );
     dudeSprite.anchor.set(0.5);
     dudeSprite.scale.set(2);

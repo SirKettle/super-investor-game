@@ -1,11 +1,30 @@
+export enum Sounds {
+  coin = 'sound.coin',
+  jump = 'sound.jump',
+  powerUp = 'sound.powerUp',
+  error = 'sound.error',
+  crash = 'sound.crash',
+  bank = 'sound.bank'
+}
+
+export enum Images {
+  coin = 'image.coin',
+  bank = 'image.bank',
+  phone = 'image.phone'
+}
+
+export enum Sprites {
+  dude = 'sprite.dude'
+}
+
 export const assets = {
   images: {
-    coin: require('assets/images/coin.png'),
-    bank: require('assets/images/bank.png'),
-    phone: require('assets/images/phone_x4_160_280.png')
+    [Images.coin]: require('assets/images/coin.png'),
+    [Images.bank]: require('assets/images/bank.png'),
+    [Images.phone]: require('assets/images/phone_x4_160_280.png')
   },
   spritesheets: {
-    dude: {
+    [Sprites.dude]: {
       src: require('assets/spritesheets/office-dude.png'),
       width: 32,
       height: 32
@@ -13,12 +32,12 @@ export const assets = {
   },
   audio: {
     // TODO: Add audio
-    coin: require('assets/audio/sfx_coin_double1.wav'),
-    jump: require('assets/audio/sfx_sound_neutral2.wav'),
-    powerUp: require('assets/audio/sfx_sounds_powerup3.wav'),
-    error: require('assets/audio/sfx_sounds_error3.wav'),
-    crash: require('assets/audio/sfx_sounds_negative1.wav'),
-    bank: require('assets/audio/sfx_sounds_fanfare1.wav')
+    [Sounds.coin]: require('assets/audio/sfx_coin_double1.wav'),
+    [Sounds.jump]: require('assets/audio/sfx_sound_neutral2.wav'),
+    [Sounds.powerUp]: require('assets/audio/sfx_sounds_powerup3.wav'),
+    [Sounds.error]: require('assets/audio/sfx_sounds_error3.wav'),
+    [Sounds.crash]: require('assets/audio/sfx_sounds_negative1.wav'),
+    [Sounds.bank]: require('assets/audio/sfx_sounds_fanfare1.wav')
   }
 };
 
