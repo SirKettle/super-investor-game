@@ -13,7 +13,12 @@ export const assets = {
   },
   audio: {
     // TODO: Add audio
-    // myAudio: 'assets/audio/my-audio.wav'
+    coin: require('assets/audio/sfx_coin_double1.wav'),
+    jump: require('assets/audio/sfx_sound_neutral2.wav'),
+    powerUp: require('assets/audio/sfx_sounds_powerup3.wav'),
+    error: require('assets/audio/sfx_sounds_error3.wav'),
+    crash: require('assets/audio/sfx_sounds_negative1.wav'),
+    bank: require('assets/audio/sfx_sounds_fanfare1.wav')
   }
 };
 

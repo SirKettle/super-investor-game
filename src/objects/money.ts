@@ -30,40 +30,61 @@ function getMinMaxPercentage(riskLevel: RISK_LEVEL): MinMax {
   };
 }
 
+export type AccountsData = {
+  cash: number;
+  invested: number;
+  dividends: number;
+  lastGrowth: number;
+  ifLeftInCashAmount: number;
+  riskLevel: RISK_LEVEL;
+};
+
 export default class Money {
   // private members
+  private game: Phaser.Game;
   private cash: number;
   private invested: number;
   private dividends: number;
+  private lastGrowth: number;
   private ifLeftInCashAmount: number;
   private riskLevel: RISK_LEVEL;
+  private audio: { [key: string]: Phaser.Sound };
 
   // getters
-  public getCash(): number {
-    return this.cash;
-  }
-  public getInvested(): number {
-    return this.invested;
-  }
-  public getWealth(): number {
-    return this.cash + this.invested;
-  }
-  public getIfLeftInCashAmount(): number {
-    return this.ifLeftInCashAmount;
-  }
-  public getRiskLevel(): RISK_LEVEL {
-    return this.riskLevel;
-  }
+  public getCash = (): number => this.cash;
+  public getInvested = (): number => this.invested;
+  public getDividends = (): number => this.dividends;
+  public getWealth = (): number => this.cash + this.invested;
+  public getLastGrowth = (): number => this.lastGrowth;
+  public getIfLeftInCashAmount = (): number => this.ifLeftInCashAmount;
+  public getRiskLevel = (): RISK_LEVEL => this.riskLevel;
+
+  public getAccountsData = (): AccountsData => ({
+    cash: this.getCash(),
+    invested: this.getInvested(),
+    dividends: this.getDividends(),
+    lastGrowth: this.getLastGrowth(),
+    ifLeftInCashAmount: this.getIfLeftInCashAmount(),
+    riskLevel: this.getRiskLevel()
+  });
 
   // Initialise
 
-  constructor(initialCash: number) {
+  constructor(game: Phaser.Game, initialCash: number) {
+    this.game = game;
     // set variables
     this.cash = initialCash;
     this.dividends = 0;
     this.invested = 0;
+    this.lastGrowth = 0;
     this.ifLeftInCashAmount = this.cash;
     this.riskLevel = RISK_LEVEL.MEDIUM;
+
+    this.audio = {
+      powerUp: this.game.add.audio('powerUp'),
+      error: this.game.add.audio('error'),
+      crash: this.game.add.audio('crash')
+    };
   }
 
   // Public methods
@@ -86,9 +107,12 @@ export default class Money {
       percentageRange.max
     );
 
-    const growth = this.invested * growthPercentage / 100;
+    this.lastGrowth = this.invested * growthPercentage / 100;
 
-    this.invested += growth;
+    const audioKey = this.lastGrowth < 0 ? 'error' : 'powerUp';
+    this.audio[audioKey].play();
+
+    this.invested += this.lastGrowth;
   }
 
   public investCash(): void {

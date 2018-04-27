@@ -1,17 +1,21 @@
 import { constants as TIME, monthNames } from '../utils/time';
 import { pad } from '../utils/number';
 
-const textStyleDateTime: Phaser.PhaserTextStyle = {
+const textStyle: Phaser.PhaserTextStyle = {
   font: 'monospace',
-  fontSize: 16,
-  fill: '#fff',
+  fontSize: 12,
   align: 'center',
-  wordWrapWidth: 100
+  fill: '#fff'
 };
+
+const textStyleDateTime: Phaser.PhaserTextStyle = {
+  ...textStyle,
+  fontSize: 15
+};
+
 const textStyleMessage: Phaser.PhaserTextStyle = {
-  font: 'courier',
+  ...textStyle,
   fontSize: 8,
-  fill: '#fff',
   wordWrapWidth: 100,
   wordWrap: true
 };
@@ -46,7 +50,9 @@ export default class Phone {
   private group: Phaser.Group;
   private message: Phaser.Text;
   private dateTime: Phaser.Text;
+  private investmentsText: Phaser.Text;
   private sprite: Phaser.Sprite;
+  private indicators: { [key: string]: Phaser.Sprite };
   private initialDateTime: Date;
 
   constructor(game: Phaser.Game) {
@@ -78,10 +84,73 @@ export default class Phone {
     this.group.fixedToCamera = true;
 
     this.initialDateTime = new Date();
+
+    this.investmentsText = this.game.add.text(
+      this.game.width - 120,
+      147,
+      '',
+      textStyleDateTime
+    );
+    this.investmentsText.anchor.set(0, 0);
+
+    this.indicators = {
+      increase: this.game.add.sprite(
+        this.game.width - 135,
+        150,
+        this.getTriangle('#00ff00', true)
+      ),
+      decrease: this.game.add.sprite(
+        this.game.width - 135,
+        150,
+        this.getTriangle('#ff0000', false)
+      )
+    };
+
+    this.resetGrowthIndicator();
+  }
+
+  private getTriangle(color: string, up: boolean): Phaser.RenderTexture {
+    const points = up
+      ? [
+          new Phaser.Point(0, 10),
+          new Phaser.Point(5, 0),
+          new Phaser.Point(10, 10)
+        ]
+      : [
+          new Phaser.Point(0, 0),
+          new Phaser.Point(5, 10),
+          new Phaser.Point(10, 0)
+        ];
+    const graphic: Phaser.Graphics = new Phaser.Graphics(this.game);
+    graphic.beginFill(Phaser.Color.hexToRGB(color), 1).drawTriangle(points);
+    return graphic.generateTexture();
   }
 
   public getSprite(): Phaser.Sprite {
     return this.sprite;
+  }
+
+  private resetGrowthIndicator(): void {
+    this.indicators.increase.alpha = 0;
+    this.indicators.decrease.alpha = 0;
+    this.investmentsText.setText('');
+  }
+
+  public updateInvestments(lastGrowth: number): void {
+    this.resetGrowthIndicator();
+
+    if (lastGrowth > 0) {
+      this.indicators.increase.alpha = 1;
+    }
+    if (lastGrowth < 0) {
+      this.indicators.decrease.alpha = 1;
+    }
+
+    this.investmentsText.setText(toMoneyFormat(lastGrowth));
+
+    setTimeout(() => {
+      this.resetGrowthIndicator();
+    }, 1500);
   }
 
   public update(
@@ -89,6 +158,7 @@ export default class Phone {
     invested: number,
     wealth: number,
     ifLeftInCashAmount: number,
+    lastGrowth: number,
     currentWeek: number,
     riskLevel: string
   ): void {

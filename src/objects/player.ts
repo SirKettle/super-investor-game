@@ -1,6 +1,6 @@
 import { KeyboardControls, MissionConfig } from '../states/main';
 import { IGameConfig } from 'phaser-ce';
-import Money, { RISK_LEVEL } from './money';
+import Money, { RISK_LEVEL, AccountsData } from './money';
 
 enum KEYBOARD_EVENTS {
   INVEST = 'keydown_I',
@@ -24,14 +24,18 @@ export default class Player {
 
   private money: Money;
 
+  private audio: { [key: string]: Phaser.Sound };
+
   // getters
   public getSprite = (): Phaser.Sprite => this.sprite;
   public getCash = (): number => this.money.getCash();
   public getInvested = (): number => this.money.getInvested();
   public getWealth = (): number => this.money.getWealth();
+  public getLastGrowth = (): number => this.money.getLastGrowth();
   public getIfLeftInCashAmount = (): number =>
     this.money.getIfLeftInCashAmount();
   public getRiskLevel = (): RISK_LEVEL => this.money.getRiskLevel();
+  public getAccountsData = (): AccountsData => this.money.getAccountsData();
 
   // Initialise
 
@@ -44,9 +48,16 @@ export default class Player {
     this.missionConfig = missionConfig;
     this.keyboardControls = keyboardControls;
 
-    this.money = new Money(this.missionConfig.initialCash);
+    this.money = new Money(this.game, this.missionConfig.initialCash);
 
     this.renderPlayerSprite();
+
+    this.audio = {
+      coin: this.game.add.audio('coin', 0.75),
+      jump: this.game.add.audio('jump', 0.1),
+      crash: this.game.add.audio('crash'),
+      bank: this.game.add.audio('bank')
+    };
   }
 
   private renderPlayerSprite(): void {
@@ -97,6 +108,7 @@ export default class Player {
   // Private methods
 
   private jump(): void {
+    this.audio.jump.play();
     this.sprite.body.velocity.y = -400;
   }
 
@@ -117,6 +129,7 @@ export default class Player {
     sprite: Phaser.Sprite
   ): void {
     sprite.destroy();
+    this.audio.coin.play();
     this.addCoin();
   }
 
@@ -125,6 +138,7 @@ export default class Player {
     sprite: Phaser.Sprite
   ): void {
     sprite.destroy();
+    this.audio.bank.play();
     this.investCash();
   }
 
@@ -157,6 +171,7 @@ export default class Player {
 
   public gameOver(): void {
     console.log('GAME OVER', this.money.getScore());
+    this.audio.crash.play();
     this.game.state.start('title');
   }
 }

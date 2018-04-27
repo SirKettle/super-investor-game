@@ -7,11 +7,13 @@ export default class Title extends Phaser.State {
     this.localFontText = this.game.add.text(
       this.game.world.centerX,
       this.game.world.centerY,
-      `Super investor!
+      `UBS games division
+SUPER INVESTOR!
 
 
 
-READY PLAYER ONE`,
+READY PLAYER ONE
+[Hit Space Bar]`,
       {
         font: '30px courier',
         align: 'center',
@@ -46,7 +48,8 @@ READY PLAYER ONE`,
     dudeSprite.animations.add('move');
     dudeSprite.animations.play('move', 4, true);
 
-    this.input.onDown.addOnce(this.startGame, this);
+    const spaceBar = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    spaceBar.onDown.addOnce(this.startGame, this);
   }
 
   private startGame(): void {

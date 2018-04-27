@@ -190,6 +190,7 @@ export default class Main extends Phaser.State {
       this.player.getInvested(),
       this.player.getWealth(),
       this.player.getIfLeftInCashAmount(),
+      this.player.getLastGrowth(),
       this.currentWeek,
       this.player.getRiskLevel()
     );
@@ -245,6 +246,8 @@ export default class Main extends Phaser.State {
 
   private onNewMonth(): void {
     this.player.updateInvestments();
+    this.phone.updateInvestments(this.player.getLastGrowth());
+    // this.phone.updateInvestments(this.player.getAccountsData());
   }
 
   // ---------
