@@ -3,10 +3,8 @@ import Coins from '../objects/coins';
 import Banks from '../objects/banks';
 import TaxCollectors from '../objects/taxCollectors';
 import Platforms from '../objects/platforms';
-import Phone from '../objects/phone';
 import { callPerSecondProbably } from '../utils/functions';
 import { SoundSystem } from '../types/custom';
-import { AccountsData } from '../objects/money';
 
 import { Images, Sprites, Sounds } from './preloader';
 
@@ -101,7 +99,6 @@ export default class Main extends Phaser.State {
   // ---------
   private missionConfig: MissionConfig;
   private player: Player;
-  private phone: Phone;
   private coins: Coins;
   private banks: Banks;
   private taxCollectors: TaxCollectors;
@@ -112,6 +109,8 @@ export default class Main extends Phaser.State {
   private soundSystem: SoundSystem;
 
   private delta: number;
+  private isNewWeek: boolean = false;
+  private isNewMonth: boolean = false;
 
   private currentWeek: number = 0;
   private previousWeek: number = 0;
@@ -156,7 +155,6 @@ export default class Main extends Phaser.State {
       this.missionConfig,
       this.soundSystem
     );
-    this.phone = new Phone(this.game);
     this.coins = new Coins(this.game, this.missionConfig, { max: 2, size: 32 });
     this.banks = new Banks(this.game, this.missionConfig, { max: 1, size: 32 });
     this.taxCollectors = new TaxCollectors(this.game, this.missionConfig, {
@@ -199,20 +197,25 @@ export default class Main extends Phaser.State {
   public update(): void {
     this.delta = this.game.time.physicsElapsed;
     this.currentWeek = Math.floor(this.timer.ms / 1000);
-
-    this.phone.update(this.player.getAccountsData(), this.currentWeek);
+    this.isNewWeek = false;
+    this.isNewMonth = false;
 
     if (this.currentWeek !== this.previousWeek) {
-      this.onNewWeek();
+      this.isNewWeek = true;
 
       if (this.currentWeek % 4 === 0) {
-        this.onNewMonth();
+        this.isNewMonth = true;
       }
     }
 
     this.previousWeek = this.currentWeek;
 
-    this.player.update();
+    this.player.update(
+      this.delta,
+      this.currentWeek,
+      this.isNewWeek,
+      this.isNewMonth
+    );
 
     this.checkCollisions();
 
@@ -225,7 +228,7 @@ export default class Main extends Phaser.State {
   private checkCollisions(): void {
     this.game.physics.arcade.collide(
       this.player.getSprite(),
-      this.phone.getSprite()
+      this.player.getPhoneSprite()
     );
     this.game.physics.arcade.collide(
       this.coins.getSpriteGroup(),
@@ -233,6 +236,10 @@ export default class Main extends Phaser.State {
     );
     this.game.physics.arcade.collide(
       this.banks.getSpriteGroup(),
+      this.platforms.getSpriteGroup()
+    );
+    this.game.physics.arcade.collide(
+      this.taxCollectors.getSpriteGroup(),
       this.platforms.getSpriteGroup()
     );
 
@@ -257,14 +264,6 @@ export default class Main extends Phaser.State {
       this.taxCollectors.getSpriteGroup(),
       this.player.onCollisionTaxMan.bind(this.player)
     );
-  }
-
-  private onNewWeek(): void {}
-
-  private onNewMonth(): void {
-    this.player.updateInvestments();
-    this.phone.updateInvestments(this.player.getLastGrowth());
-    // this.phone.updateInvestments(this.player.getAccountsData());
   }
 
   // ---------

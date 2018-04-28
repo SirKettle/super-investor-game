@@ -1,6 +1,6 @@
 import { KeyboardControls, MissionConfig } from '../states/main';
-import { IGameConfig } from 'phaser-ce';
 import Money, { RISK_LEVEL, AccountsData } from './money';
+import Phone from './phone';
 import { SoundSystem } from '../types/custom';
 import { Images, Sprites, Sounds } from '../states/preloader';
 
@@ -24,13 +24,16 @@ export default class Player {
   private sprite: Phaser.Sprite;
 
   private isAirbourne: boolean = true;
+  private currentWeek: number = 0;
 
   private money: Money;
+  private phone: Phone;
 
   private audio: { [key: string]: Phaser.Sound };
 
   // getters
   public getSprite = (): Phaser.Sprite => this.sprite;
+  public getPhoneSprite = (): Phaser.Sprite => this.phone.getSprite();
   public getCash = (): number => this.money.getCash();
   public getInvested = (): number => this.money.getInvested();
   public getWealth = (): number => this.money.getWealth();
@@ -41,7 +44,11 @@ export default class Player {
   public getAccountsData = (): AccountsData => this.money.getAccountsData();
 
   // requests
-  public updateInvestments = (): void => this.money.updateInvestments();
+  public updateInvestments = (): void => {
+    this.money.updateInvestments();
+    this.phone.updateInvestments(this.getLastGrowth());
+  };
+
   public investCash = (): void => this.money.investCash();
   public payTax = (): void => this.money.payTax();
   public toggleRiskLevel = (): void => this.money.toggleRiskLevel();
@@ -65,6 +72,7 @@ export default class Player {
       this.soundSystem,
       this.missionConfig.initialCash
     );
+    this.phone = new Phone(this.game);
 
     this.renderPlayerSprite();
   }
@@ -81,7 +89,13 @@ export default class Player {
 
   // Update methods
 
-  public update(): void {
+  public update(
+    delta: number,
+    currentWeek: number,
+    isNewWeek: boolean,
+    isNewMonth: boolean
+  ): void {
+    this.currentWeek = currentWeek;
     this.isAirbourne =
       this.sprite.centerY < this.game.height - this.sprite.height / 2 - 2;
 
@@ -111,6 +125,12 @@ export default class Player {
 
     if (this.sprite.centerY > this.missionConfig.arenaHeight) {
       this.gameOver();
+    }
+
+    this.phone.update(this.getAccountsData(), this.currentWeek);
+
+    if (isNewMonth) {
+      this.updateInvestments();
     }
   }
 
@@ -170,7 +190,11 @@ export default class Player {
   }
 
   public gameOver(): void {
-    console.log('GAME OVER', this.money.getScore());
+    console.log(
+      'GAME OVER',
+      this.money.getScore(),
+      `Week: ${this.currentWeek}`
+    );
     this.soundSystem[Sounds.crash].play();
     this.game.state.start('title');
   }
