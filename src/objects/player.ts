@@ -176,7 +176,7 @@ export default class Player {
     sprite: Phaser.Sprite
   ): void {
     sprite.destroy();
-    this.soundSystem[Sounds.bank].play();
+    this.soundSystem[Sounds.error].play();
     this.payTax();
   }
 
