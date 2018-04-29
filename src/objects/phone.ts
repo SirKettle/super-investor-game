@@ -1,5 +1,5 @@
 import { constants as TIME, monthNames } from '../utils/time';
-import { pad } from '../utils/number';
+import { pad, toMoneyFormat } from '../utils/number';
 import { Images } from '../states/preloader';
 import { AccountsData } from '../objects/money';
 
@@ -20,10 +20,6 @@ const textStyleMessage: Phaser.PhaserTextStyle = {
   fontSize: 8,
   wordWrapWidth: 100,
   wordWrap: true
-};
-
-const toMoneyFormat = (amount: number): string => {
-  return `£${(amount * 1000).toFixed(2)}`;
 };
 
 const renderScoreText = (accountsData: AccountsData, currentWeek: number) => `

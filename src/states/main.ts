@@ -117,6 +117,16 @@ export default class Main extends Phaser.State {
 
   public shutdown(): void {
     this.soundSystem[Sounds.musicMoney].stop();
+
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.UP);
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.DOWN);
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.LEFT);
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.RIGHT);
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.I);
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.R);
+
+    delete this.keyboardControls;
   }
 
   // ---------

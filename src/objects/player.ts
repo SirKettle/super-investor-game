@@ -3,6 +3,7 @@ import Money, { RISK_LEVEL, AccountsData } from './money';
 import Phone from './phone';
 import { SoundSystem } from '../types/custom';
 import { Images, Sprites, Sounds } from '../states/preloader';
+import { setHighScore } from '../services/highScore';
 
 enum KEYBOARD_EVENTS {
   INVEST = 'keydown_I',
@@ -196,6 +197,13 @@ export default class Player {
       `Week: ${this.currentWeek}`
     );
     this.soundSystem[Sounds.crash].play();
-    this.game.state.start('title');
+
+    const score = {
+      name: '-',
+      score: this.getWealth(),
+      timeStamp: Date.now()
+    };
+
+    this.game.state.start('gameOver', true, false, score);
   }
 }

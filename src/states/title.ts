@@ -1,4 +1,3 @@
-import { CENTER } from 'phaser-ce';
 import { Images, Sprites } from './preloader';
 
 export default class Title extends Phaser.State {
@@ -8,7 +7,7 @@ export default class Title extends Phaser.State {
     this.localFontText = this.game.add.text(
       this.game.world.centerX,
       this.game.world.centerY,
-      `UBS games division
+      `Sisma Games presents...
 SUPER INVESTOR!
 
 
