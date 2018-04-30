@@ -38,6 +38,7 @@ export type AccountsData = {
   invested: number;
   dividends: number;
   lastGrowth: number;
+  lastGrowthAmount: number;
   ifLeftInCashAmount: number;
   taxPaid: number;
   wealth: number;
@@ -51,10 +52,12 @@ export default class Money {
   private invested: number;
   private dividends: number;
   private lastGrowth: number;
+  private lastGrowthAmount: number;
   private taxPaid: number;
   private ifLeftInCashAmount: number;
   private riskLevel: RISK_LEVEL;
   private soundSystem: SoundSystem;
+  private accountsHistory: AccountsData[] = [];
 
   // getters
   public getCash = (): number => this.cash;
@@ -62,15 +65,18 @@ export default class Money {
   public getDividends = (): number => this.dividends;
   public getWealth = (): number => this.cash + this.invested;
   public getLastGrowth = (): number => this.lastGrowth;
+  public getLastGrowthAmount = (): number => this.lastGrowthAmount;
   public getTaxPaid = (): number => this.taxPaid;
   public getIfLeftInCashAmount = (): number => this.ifLeftInCashAmount;
   public getRiskLevel = (): RISK_LEVEL => this.riskLevel;
+  public getAccountsHistory = (): AccountsData[] => this.accountsHistory;
 
   public getAccountsData = (): AccountsData => ({
     cash: this.getCash(),
     invested: this.getInvested(),
     dividends: this.getDividends(),
     lastGrowth: this.getLastGrowth(),
+    lastGrowthAmount: this.getLastGrowthAmount(),
     taxPaid: this.getTaxPaid(),
     ifLeftInCashAmount: this.getIfLeftInCashAmount(),
     wealth: this.getWealth(),
@@ -91,9 +97,16 @@ export default class Money {
     this.dividends = 0;
     this.invested = 0;
     this.lastGrowth = 0;
+    this.lastGrowthAmount = 0;
     this.taxPaid = 0;
     this.ifLeftInCashAmount = this.cash;
     this.riskLevel = RISK_LEVEL.MEDIUM;
+
+    this.addAccountHistorySnapShot();
+  }
+
+  private addAccountHistorySnapShot(): void {
+    this.accountsHistory.push(this.getAccountsData());
   }
 
   // Public methods
@@ -116,12 +129,15 @@ export default class Money {
       percentageRange.max
     );
 
-    this.lastGrowth = this.invested * growthPercentage / 100;
+    this.lastGrowth = growthPercentage;
+    this.lastGrowthAmount = this.invested * growthPercentage / 100;
 
-    const audioKey = this.lastGrowth < 0 ? Sounds.error : Sounds.powerUp;
+    const audioKey = this.lastGrowthAmount < 0 ? Sounds.error : Sounds.powerUp;
     this.soundSystem[audioKey].play();
 
-    this.invested += this.lastGrowth;
+    this.invested += this.lastGrowthAmount;
+
+    this.addAccountHistorySnapShot();
   }
 
   public investCash(): void {
