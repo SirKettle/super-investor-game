@@ -4,15 +4,31 @@ import { Images } from '../states/preloader';
 import { AccountsData } from '../objects/money';
 
 const textStyle: Phaser.PhaserTextStyle = {
-  font: 'monospace',
+  font: 'Courier',
   fontSize: 12,
   align: 'center',
-  fill: '#fff'
+  fill: '#ffffff'
 };
 
 const textStyleDateTime: Phaser.PhaserTextStyle = {
   ...textStyle,
   fontSize: 15
+};
+
+const textStyleCash: Phaser.PhaserTextStyle = {
+  ...textStyle,
+  fill: '#aaaa00',
+  align: 'left'
+};
+
+const textStyleFundAmount: Phaser.PhaserTextStyle = {
+  ...textStyle,
+  align: 'left'
+};
+
+const textStyleFundGrowth: Phaser.PhaserTextStyle = {
+  ...textStyle,
+  align: 'right'
 };
 
 const textStyleMessage: Phaser.PhaserTextStyle = {
@@ -41,7 +57,10 @@ export default class Phone {
   private game: Phaser.Game;
   private group: Phaser.Group;
   private message: Phaser.Text;
-  private dateTime: Phaser.Text;
+  private textDate: Phaser.Text;
+  private textCashAmount: Phaser.Text;
+  private textFundAmount: Phaser.Text;
+  private textFundGrowth: Phaser.Text;
   private investmentsText: Phaser.Text;
   private sprite: Phaser.Sprite;
   private indicators: { [key: string]: Phaser.Sprite };
@@ -54,13 +73,7 @@ export default class Phone {
     this.game.physics.arcade.enable(this.sprite);
     this.sprite.body.immovable = true;
 
-    this.dateTime = this.game.add.text(
-      this.game.width - 80,
-      25,
-      '',
-      textStyleDateTime
-    );
-    this.dateTime.anchor.set(0.5, 0);
+    this.initText();
 
     this.message = this.game.add.text(
       this.game.width - 130,
@@ -72,7 +85,7 @@ export default class Phone {
 
     this.group = this.game.add.group();
     this.group.add(this.message);
-    this.group.add(this.dateTime);
+    this.group.add(this.textDate);
     this.group.alpha = 0.7;
     this.group.fixedToCamera = true;
 
@@ -102,6 +115,40 @@ export default class Phone {
     this.resetGrowthIndicator();
   }
 
+  private initText(): void {
+    this.textDate = this.game.add.text(
+      this.game.width - 80,
+      25,
+      '',
+      textStyleDateTime
+    );
+    this.textDate.anchor.set(0.5, 0);
+
+    this.textCashAmount = this.game.add.text(
+      this.game.width - 135,
+      40,
+      '',
+      textStyleCash
+    );
+    this.textCashAmount.anchor.set(0, 0);
+
+    this.textFundAmount = this.game.add.text(
+      this.game.width - 135,
+      70,
+      '',
+      textStyleFundAmount
+    );
+    this.textFundAmount.anchor.set(0, 0);
+
+    this.textFundGrowth = this.game.add.text(
+      this.game.width - 25,
+      70,
+      '',
+      textStyleFundAmount
+    );
+    this.textFundAmount.anchor.set(1, 0);
+  }
+
   private getTriangle(color: string, up: boolean): Phaser.RenderTexture {
     const points = up
       ? [
@@ -128,7 +175,7 @@ export default class Phone {
     this.indicators.decrease.alpha = 0;
 
     if (this.accountsData) {
-      this.investmentsText.setText(toMoneyFormat(this.accountsData.wealth));
+      // this.investmentsText.setText(toMoneyFormat(this.accountsData.wealth));
     }
   }
 
@@ -145,7 +192,9 @@ export default class Phone {
       this.indicators.decrease.alpha = 1;
     }
 
-    this.investmentsText.setText(toMoneyFormat(lastGrowth));
+    // this.investmentsText.setText(toMoneyFormat(lastGrowth));
+
+    this.textFundGrowth.setText(toMoneyFormat(lastGrowth));
 
     setTimeout(() => {
       this.resetGrowthIndicator();
@@ -166,7 +215,7 @@ export default class Phone {
     const month = currentDate.getUTCMonth();
     const year = currentDate.getUTCFullYear();
 
-    this.dateTime.setText(
+    this.textDate.setText(
       `${pad(date)} ${monthNames[month]} ${year.toString().slice(2)}`
     );
   }

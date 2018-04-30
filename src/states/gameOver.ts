@@ -99,7 +99,7 @@ to submit your score`);
       .sort((a: Score, b: Score) => {
         return a.score < b.score ? 1 : -1;
       })
-      .slice(0, 7);
+      .slice(0, 5);
 
     const highScoresText = topFive
       .map(
@@ -114,7 +114,7 @@ to submit your score`);
     this.textHighScore.setText(highScoresText);
 
     this.textForm.setText(`HIGH SCORES
-\n\n\n\n
+\n\n\n
 [Hit Space Bar]`);
 
     this.game.camera.flash(0x000000, 1000);

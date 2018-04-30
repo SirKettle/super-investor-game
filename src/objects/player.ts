@@ -191,11 +191,6 @@ export default class Player {
   }
 
   public gameOver(): void {
-    console.log(
-      'GAME OVER',
-      this.money.getScore(),
-      `Week: ${this.currentWeek}`
-    );
     this.soundSystem[Sounds.crash].play();
 
     const score = {
