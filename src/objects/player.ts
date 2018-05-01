@@ -47,7 +47,10 @@ export default class Player {
   // requests
   public updateInvestments = (): void => {
     this.money.updateInvestments();
-    this.phone.updateInvestments(this.getLastGrowth());
+    this.phone.updateInvestments(
+      this.getLastGrowth(),
+      this.money.getFundPerformance()
+    );
   };
 
   public investCash = (): void => this.money.investCash();

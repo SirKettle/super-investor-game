@@ -7,6 +7,7 @@ import { callPerSecondProbably } from '../utils/functions';
 import { SoundSystem } from '../types/custom';
 
 import { Images, Sprites, Sounds } from './preloader';
+import { toScore } from '../utils/number';
 
 const MINUTE: number = 60 * 1000;
 const objectives = {
@@ -107,6 +108,7 @@ export default class Main extends Phaser.State {
   private timerEvent: Phaser.TimerEvent;
   private keyboardControls: KeyboardControls;
   private soundSystem: SoundSystem;
+  private textScore: Phaser.Text;
 
   private delta: number;
   private isNewWeek: boolean = false;
@@ -180,6 +182,12 @@ export default class Main extends Phaser.State {
     }, this);
 
     this.soundSystem[Sounds.musicMoney].play();
+
+    this.textScore = this.game.add.text(10, 10, '', {
+      fill: '#ffffff',
+      font: 'Courier',
+      fontSize: 15
+    });
   }
 
   private initTimer(): void {
@@ -233,6 +241,8 @@ export default class Main extends Phaser.State {
     this.coins.update(this.delta);
     this.banks.update(this.delta);
     this.taxCollectors.update(this.delta);
+
+    this.textScore.setText(toScore(this.player.getWealth()));
   }
 
   private checkCollisions(): void {

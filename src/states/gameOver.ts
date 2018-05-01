@@ -5,7 +5,7 @@ import {
   getHighScoreTable,
   setHighScore
 } from '../services/highScore';
-import { toMoneyFormat } from '../utils/number';
+import { toScore, toMoneyFormat } from '../utils/number';
 import { toFixedLength } from '../utils/string';
 
 const fontStyle: Phaser.PhaserTextStyle = {
@@ -104,7 +104,7 @@ to submit your score`);
     const highScoresText = topFive
       .map(
         (score: Score) =>
-          `${toFixedLength(toMoneyFormat(score.score), 10)}..${toFixedLength(
+          `${toFixedLength(toScore(score.score), 10)}..${toFixedLength(
             score.name,
             8
           )}`

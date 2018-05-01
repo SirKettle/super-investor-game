@@ -15,23 +15,27 @@ type MinMax = {
 function getMinMaxPercentage(riskLevel: RISK_LEVEL): MinMax {
   if (riskLevel === RISK_LEVEL.HIGH) {
     return {
-      min: -15,
-      max: 25
+      min: -5,
+      max: 8
     };
   }
 
   if (riskLevel === RISK_LEVEL.MEDIUM) {
     return {
-      min: -10,
-      max: 15
+      min: -3,
+      max: 5
     };
   }
 
   return {
-    min: -5,
-    max: 10
+    min: -1,
+    max: 1.5
   };
 }
+
+export type FundPerformance = {
+  value: number;
+}[];
 
 export type AccountsData = {
   cash: number;
@@ -57,7 +61,8 @@ export default class Money {
   private ifLeftInCashAmount: number;
   private riskLevel: RISK_LEVEL;
   private soundSystem: SoundSystem;
-  private accountsHistory: AccountsData[] = [];
+  private fundPerformance: FundPerformance = [];
+  private smartFundValue: number = 100;
 
   // getters
   public getCash = (): number => this.cash;
@@ -69,7 +74,7 @@ export default class Money {
   public getTaxPaid = (): number => this.taxPaid;
   public getIfLeftInCashAmount = (): number => this.ifLeftInCashAmount;
   public getRiskLevel = (): RISK_LEVEL => this.riskLevel;
-  public getAccountsHistory = (): AccountsData[] => this.accountsHistory;
+  public getFundPerformance = (): FundPerformance => this.fundPerformance;
 
   public getAccountsData = (): AccountsData => ({
     cash: this.getCash(),
@@ -102,11 +107,13 @@ export default class Money {
     this.ifLeftInCashAmount = this.cash;
     this.riskLevel = RISK_LEVEL.MEDIUM;
 
-    this.addAccountHistorySnapShot();
+    this.takeFundPerformanceSnapshot();
   }
 
-  private addAccountHistorySnapShot(): void {
-    this.accountsHistory.push(this.getAccountsData());
+  private takeFundPerformanceSnapshot(): void {
+    this.fundPerformance.push({
+      value: this.smartFundValue
+    });
   }
 
   // Public methods
@@ -137,7 +144,10 @@ export default class Money {
 
     this.invested += this.lastGrowthAmount;
 
-    this.addAccountHistorySnapShot();
+    // update the fund
+    const smartFundGrowthAmount = this.invested * growthPercentage / 100;
+    this.smartFundValue += smartFundGrowthAmount;
+    this.takeFundPerformanceSnapshot();
   }
 
   public investCash(): void {

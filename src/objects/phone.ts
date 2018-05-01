@@ -1,7 +1,8 @@
+import { min, max, reduce } from 'ramda';
 import { constants as TIME, monthNames } from '../utils/time';
 import { pad, toMoneyFormat } from '../utils/number';
 import { Images } from '../states/preloader';
-import { AccountsData } from '../objects/money';
+import { AccountsData, FundPerformance } from '../objects/money';
 
 enum COLORS {
   WHITE = '#ffffff',
@@ -10,6 +11,11 @@ enum COLORS {
   RED = '#ff0000',
   YELLOW = '#ccaa00'
 }
+
+type DataPoint = {
+  x: number;
+  y: number;
+};
 
 const textStyle: Phaser.PhaserTextStyle = {
   font: 'Courier',
@@ -63,7 +69,7 @@ Investing has definitely really saved you ${toMoneyFormat(
 
 export default class Phone {
   private game: Phaser.Game;
-  private group: Phaser.Group;
+  private lineGraph: Phaser.Graphics;
   private textDebug: Phaser.Text;
   private textDate: Phaser.Text;
   private textCashAmount: Phaser.Text;
@@ -73,16 +79,41 @@ export default class Phone {
   private indicators: { [key: string]: Phaser.Sprite };
   private initialDateTime: Date;
   private accountsData: AccountsData;
+  private fundPerformance: FundPerformance;
+  private phoneDisplay: {
+    offsetFrom: {
+      x: number;
+      y: number;
+    };
+    offsetTo: {
+      x: number;
+    };
+    centerX: number;
+    width: number;
+  };
 
   public getSprite = (): Phaser.Sprite => this.sprite;
 
   constructor(game: Phaser.Game) {
     this.game = game;
+    this.phoneDisplay = {
+      offsetFrom: {
+        x: this.game.width - 135,
+        y: 25
+      },
+      offsetTo: {
+        x: this.game.width - 25
+      },
+      centerX: this.game.width - 80,
+      width: 110
+    };
     this.initialDateTime = new Date();
-    this.group = this.game.add.group();
     this.initSprites();
     this.initText();
     this.resetGrowthIndicator();
+
+    this.lineGraph = this.game.add.graphics();
+    this.drawPerformance([]);
   }
 
   private initSprites(): void {
@@ -92,12 +123,12 @@ export default class Phone {
 
     this.indicators = {
       increase: this.game.add.sprite(
-        this.game.width - 25,
+        this.phoneDisplay.offsetTo.x,
         104,
         this.getTriangle(COLORS.GREEN, true)
       ),
       decrease: this.game.add.sprite(
-        this.game.width - 25,
+        this.phoneDisplay.offsetTo.x,
         107,
         this.getTriangle(COLORS.RED, false)
       )
@@ -109,7 +140,7 @@ export default class Phone {
 
   private initText(): void {
     this.textDate = this.game.add.text(
-      this.game.width - 80,
+      this.phoneDisplay.centerX,
       25,
       '22 JAN 95',
       textStyleDateTime
@@ -117,7 +148,7 @@ export default class Phone {
     this.textDate.anchor.set(0.5, 0);
 
     this.textCashAmount = this.game.add.text(
-      this.game.width - 135,
+      this.phoneDisplay.offsetFrom.x,
       55,
       '',
       textStyleCash
@@ -125,7 +156,7 @@ export default class Phone {
     this.textCashAmount.anchor.set(0, 0);
 
     this.textFundAmount = this.game.add.text(
-      this.game.width - 135,
+      this.phoneDisplay.offsetFrom.x,
       105,
       '',
       textStyleFundAmount
@@ -133,7 +164,7 @@ export default class Phone {
     this.textFundAmount.anchor.set(0, 0);
 
     this.textFundGrowth = this.game.add.text(
-      this.game.width - 40,
+      this.phoneDisplay.offsetTo.x - 15,
       105,
       '',
       textStyleFundGrowth
@@ -141,7 +172,7 @@ export default class Phone {
     this.textFundGrowth.anchor.set(1, 0);
 
     this.textDebug = this.game.add.text(
-      this.game.width - 130,
+      this.phoneDisplay.offsetFrom.x,
       35,
       '',
       textStyleMessage
@@ -149,17 +180,12 @@ export default class Phone {
     this.textDebug.anchor.set(0, 0);
 
     this.game.add
-      .text(this.game.width - 80, 85, 'Smart Fund', {
+      .text(this.phoneDisplay.centerX, 85, 'Smart Fund', {
         ...textStyleDateTime,
         fontStyle: 'italic',
         fill: COLORS.GREY
       })
       .anchor.set(0.5, 0);
-
-    // this.group.add(this.textDebug);
-    // this.group.add(this.textDate);
-    // this.group.alpha = 0.7;
-    // this.group.fixedToCamera = true;
   }
 
   private getTriangle(color: string, up: boolean): Phaser.RenderTexture {
@@ -187,8 +213,70 @@ export default class Phone {
     }
   }
 
-  public updateInvestments(lastGrowth: number): void {
+  private drawPerformance(fundPerformance: FundPerformance): void {
+    const fundValues = fundPerformance.map(datum => datum.value);
+    this.drawGraph(
+      this.lineGraph,
+      130,
+      170,
+      this.phoneDisplay.offsetFrom.x,
+      this.phoneDisplay.offsetTo.x,
+      fundValues
+    );
+  }
+
+  private drawGraph(
+    graph: Phaser.Graphics,
+    top: number,
+    bottom: number,
+    left: number,
+    right: number,
+    values: Array<number>
+  ): void {
+    graph.clear();
+
+    // draw outline of graph
+    graph.lineStyle(1, 0x444444);
+    graph.moveTo(left, top);
+    graph.lineTo(left, bottom);
+    graph.lineTo(right, bottom);
+
+    if (!values.length) {
+      return;
+    }
+
+    // calculate data points for graph
+    const maxValue = Number(reduce(max, 0, values));
+    const minValue = Number(reduce(min, Infinity, values));
+    const graphWidth = right - left;
+    const graphHeight = bottom - top;
+    const lineWidth = graphWidth / (values.length - 1);
+    const graphPoints = values.map((val: number, index: number): DataPoint => {
+      const valPercentage = (val - minValue) / (maxValue - minValue);
+
+      return {
+        x: Math.floor(index * lineWidth + left),
+        y: Math.floor(bottom - graphHeight * valPercentage)
+      };
+    });
+
+    // draw data graph here
+    graph.lineStyle(1, 0x22ccdd);
+    graphPoints.forEach((point: DataPoint, index: number) => {
+      if (index === 0) {
+        graph.moveTo(point.x, point.y);
+        return;
+      }
+      graph.lineTo(point.x, point.y);
+    });
+  }
+
+  public updateInvestments(
+    lastGrowth: number,
+    fundPerformance: FundPerformance
+  ): void {
     this.resetGrowthIndicator();
+    this.drawPerformance(fundPerformance);
     if (lastGrowth === 0) {
       return;
     }
