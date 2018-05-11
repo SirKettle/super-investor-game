@@ -180,6 +180,9 @@ export default class Main extends Phaser.State {
     this.keyboardControls.riskLevel.onDown.add(() => {
       this.player.toggleRiskLevel();
     }, this);
+    this.keyboardControls.pause.onDown.add(() => {
+      this.game.paused = false;
+    }, this);
 
     this.soundSystem[Sounds.musicMoney].play();
 
@@ -204,7 +207,8 @@ export default class Main extends Phaser.State {
       right: this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT),
       space: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
       invest: this.game.input.keyboard.addKey(Phaser.Keyboard.I),
-      riskLevel: this.game.input.keyboard.addKey(Phaser.Keyboard.R)
+      riskLevel: this.game.input.keyboard.addKey(Phaser.Keyboard.R),
+      pause: this.game.input.keyboard.addKey(Phaser.Keyboard.P)
     };
   }
 

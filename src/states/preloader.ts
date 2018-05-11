@@ -23,7 +23,8 @@ export const assets = {
   images: {
     [Images.coin]: require('assets/images/coin.png'),
     [Images.bank]: require('assets/images/bank.png'),
-    [Images.taxman]: require('assets/images/taxman.png'),
+    // [Images.taxman]: require('assets/images/taxman.png'),
+    [Images.taxman]: require('assets/images/taxwoman.png'),
     [Images.phone]: require('assets/images/phone_x4_160_280.png')
   },
   spritesheets: {
