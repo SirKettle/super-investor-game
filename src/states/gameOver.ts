@@ -9,17 +9,12 @@ import {
 } from '../services/highScore';
 import { toScore, toMoneyFormat } from '../utils/number';
 import { toFixedLength } from '../utils/string';
-
-const fontStyle: Phaser.PhaserTextStyle = {
-  font: '30px courier',
-  align: 'center',
-  fill: '#ffddee'
-};
+import * as typography from '../style/typography';
 
 export default class GameOver extends Phaser.State {
   private scoreBreakdown: ScoreBreakdown;
   private highScoreTable: HighScoreTable;
-  private textForm: Phaser.Text = null;
+  private textTitle: Phaser.Text = null;
   private textHighScore: Phaser.Text = null;
   private nameInput: HTMLInputElement;
   private scoreForm: HTMLFormElement;
@@ -47,25 +42,25 @@ export default class GameOver extends Phaser.State {
   }
 
   private initTextElements(): void {
-    this.textForm = this.game.add.text(
+    this.textTitle = this.game.add.text(
       this.game.world.centerX,
       this.game.world.centerY,
       '',
-      fontStyle
+      typography.menuTitle
     );
     this.textHighScore = this.game.add.text(
       this.game.world.centerX,
       this.game.world.centerY,
       '',
-      { ...fontStyle, font: '20px courier' }
+      typography.menuTableContent
     );
-    this.textForm.anchor.setTo(0.5);
+    this.textTitle.anchor.setTo(0.5);
     this.textHighScore.anchor.setTo(0.5);
   }
 
   private showForm(): void {
     this.game.camera.flash(0x000000, 1000);
-    this.textForm.setText(`GAME OVER
+    this.textTitle.setText(`GAME OVER
 You made ${toMoneyFormat(this.scoreBreakdown.accountsData.wealth)}!
 
 
@@ -115,7 +110,7 @@ to submit your score`);
 
     this.textHighScore.setText(highScoresText);
 
-    this.textForm.setText(`HIGH SCORES
+    this.textTitle.setText(`HIGH SCORES
 \n\n\n
 [Hit Space Bar]`);
 

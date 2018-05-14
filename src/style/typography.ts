@@ -62,3 +62,19 @@ export const menuTitle: Phaser.PhaserTextStyle = {
   align: 'center',
   fill: COLORS.CREAM
 };
+
+export const menuTableContent: Phaser.PhaserTextStyle = {
+  ...defaultStyle,
+  fontSize: 20,
+  align: 'center',
+  fill: COLORS.CREAM
+};
+
+export const menuContent: Phaser.PhaserTextStyle = {
+  ...defaultStyle,
+  fontSize: 12,
+  align: 'center',
+  fill: COLORS.CREAM,
+  wordWrapWidth: 450,
+  wordWrap: true
+};
