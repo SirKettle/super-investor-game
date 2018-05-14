@@ -1,4 +1,6 @@
 import { Sprites } from './preloader';
+import { ScoreBreakdown } from './breakdown';
+import { AccountsData } from '../objects/money';
 import {
   Score,
   HighScoreTable,
@@ -15,15 +17,15 @@ const fontStyle: Phaser.PhaserTextStyle = {
 };
 
 export default class GameOver extends Phaser.State {
-  private playerScore: Score;
+  private scoreBreakdown: ScoreBreakdown;
   private highScoreTable: HighScoreTable;
   private textForm: Phaser.Text = null;
   private textHighScore: Phaser.Text = null;
   private nameInput: HTMLInputElement;
   private scoreForm: HTMLFormElement;
 
-  public init(score: Score): void {
-    this.playerScore = score;
+  public init(scoreBreakdown: ScoreBreakdown): void {
+    this.scoreBreakdown = scoreBreakdown;
   }
 
   public shutdown(): void {
@@ -64,7 +66,7 @@ export default class GameOver extends Phaser.State {
   private showForm(): void {
     this.game.camera.flash(0x000000, 1000);
     this.textForm.setText(`GAME OVER
-You made ${toMoneyFormat(this.playerScore.score)}!
+You made ${toMoneyFormat(this.scoreBreakdown.accountsData.wealth)}!
 
 
 ENTER YOUR NAME
@@ -135,8 +137,13 @@ to submit your score`);
   }
 
   private submitScore(): void {
-    this.playerScore.name = this.nameInput.value;
-    setHighScore(this.playerScore);
+    const score = {
+      name: this.nameInput.value,
+      score: this.scoreBreakdown.accountsData.wealth,
+      timeStamp: this.scoreBreakdown.timeStamp
+    };
+
+    setHighScore(score);
     this.showHighScoreTable();
     this.removeForm();
   }

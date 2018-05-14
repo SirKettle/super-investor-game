@@ -3,53 +3,12 @@ import { constants as TIME, monthNames } from '../utils/time';
 import { pad, toMoneyFormat } from '../utils/number';
 import { Images } from '../states/preloader';
 import { AccountsData, FundPerformance } from '../objects/money';
-
-enum COLORS {
-  WHITE = '#ffffff',
-  GREY = '#666666',
-  GREEN = '#00ff00',
-  RED = '#ff0000',
-  YELLOW = '#ccaa00'
-}
+import { COLORS } from '../style/colors';
+import * as typography from '../style/typography';
 
 type DataPoint = {
   x: number;
   y: number;
-};
-
-const textStyle: Phaser.PhaserTextStyle = {
-  font: 'Courier',
-  fontSize: 10,
-  align: 'center',
-  fill: COLORS.WHITE
-};
-
-const textStyleDateTime: Phaser.PhaserTextStyle = {
-  ...textStyle,
-  fontSize: 15
-};
-
-const textStyleCash: Phaser.PhaserTextStyle = {
-  ...textStyle,
-  fill: COLORS.YELLOW,
-  align: 'left'
-};
-
-const textStyleFundAmount: Phaser.PhaserTextStyle = {
-  ...textStyle,
-  align: 'left'
-};
-
-const textStyleFundGrowth: Phaser.PhaserTextStyle = {
-  ...textStyle,
-  align: 'right'
-};
-
-const textStyleMessage: Phaser.PhaserTextStyle = {
-  ...textStyle,
-  fontSize: 8,
-  wordWrapWidth: 100,
-  wordWrap: true
 };
 
 const renderDebugText = (accountsData: AccountsData, currentWeek: number) => `
@@ -143,7 +102,7 @@ export default class Phone {
       this.phoneDisplay.centerX,
       25,
       '22 JAN 95',
-      textStyleDateTime
+      typography.phoneDateTime
     );
     this.textDate.anchor.set(0.5, 0);
 
@@ -151,7 +110,7 @@ export default class Phone {
       this.phoneDisplay.offsetFrom.x,
       55,
       '',
-      textStyleCash
+      typography.phoneCash
     );
     this.textCashAmount.anchor.set(0, 0);
 
@@ -159,7 +118,7 @@ export default class Phone {
       this.phoneDisplay.offsetFrom.x,
       105,
       '',
-      textStyleFundAmount
+      typography.phoneFundAmount
     );
     this.textFundAmount.anchor.set(0, 0);
 
@@ -167,7 +126,7 @@ export default class Phone {
       this.phoneDisplay.offsetTo.x - 15,
       105,
       '',
-      textStyleFundGrowth
+      typography.phoneFundGrowth
     );
     this.textFundGrowth.anchor.set(1, 0);
 
@@ -175,16 +134,17 @@ export default class Phone {
       this.phoneDisplay.offsetFrom.x,
       35,
       '',
-      textStyleMessage
+      typography.phoneMessage
     );
     this.textDebug.anchor.set(0, 0);
 
     this.game.add
-      .text(this.phoneDisplay.centerX, 85, 'Smart Fund', {
-        ...textStyleDateTime,
-        fontStyle: 'italic',
-        fill: COLORS.GREY
-      })
+      .text(
+        this.phoneDisplay.centerX,
+        85,
+        'Smart Fund',
+        typography.phoneFundTitle
+      )
       .anchor.set(0.5, 0);
   }
 
@@ -282,17 +242,11 @@ export default class Phone {
     }
     if (lastGrowth > 0) {
       this.indicators.increase.alpha = 1;
-      this.textFundGrowth.setStyle({
-        ...textStyleFundGrowth,
-        fill: COLORS.GREEN
-      });
+      this.textFundGrowth.setStyle(typography.phoneFundGrowthIncrease);
     }
     if (lastGrowth < 0) {
       this.indicators.decrease.alpha = 1;
-      this.textFundGrowth.setStyle({
-        ...textStyleFundGrowth,
-        fill: COLORS.RED
-      });
+      this.textFundGrowth.setStyle(typography.phoneFundGrowthDecrease);
     }
     this.textFundGrowth.setText(`${lastGrowth.toFixed(1)}%`);
     setTimeout(() => {

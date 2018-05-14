@@ -196,12 +196,11 @@ export default class Player {
   public gameOver(): void {
     this.soundSystem[Sounds.crash].play();
 
-    const score = {
-      name: '-',
-      score: this.getWealth(),
+    const scoreBreakdown = {
+      accountsData: this.getAccountsData(),
       timeStamp: Date.now()
     };
 
-    this.game.state.start('gameOver', true, false, score);
+    this.game.state.start('breakdown', true, false, scoreBreakdown);
   }
 }
